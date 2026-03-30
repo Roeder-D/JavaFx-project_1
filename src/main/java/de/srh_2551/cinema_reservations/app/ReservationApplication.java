@@ -1,0 +1,19 @@
+package de.srh_2551.cinema_reservations.app;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+
+public class ReservationApplication extends Application {
+    @Override
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(ReservationApplication.class.getResource("/de/srh_2551/cinema_reservations/cinema_reservations.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+        stage.setTitle("Reservierung");
+        stage.setScene(scene);
+        stage.show();
+    }
+}
