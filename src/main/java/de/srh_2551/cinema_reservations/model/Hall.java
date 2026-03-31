@@ -22,10 +22,21 @@ public class Hall {
         return (name != null && name.matches("^[\\p{L}\\p{N}_ -]+$"));
     }
 
+    private boolean rowExists(String rowName) {
+        for (Row row: this.rows){
+            if(row.getRowIdentifier().equals(rowName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     //setup
     public void addRow(Row row) {
-        if(row != null) {
+        if(row != null && !rowExists(row.getRowIdentifier())) {
             this.rows.add(row);
+        }else{
+            throw new IllegalArgumentException("Already exists or null!");
         }
     }
 
@@ -41,13 +52,22 @@ public class Hall {
         }
     }
 
+    public List<Row> getRows() {
+        return rows;
+    }
+
+
     public Seat getSeat(int seatNumber, String rowName) {
         for (Row row : this.rows) {
-            if(row.getRowIdentifier().equals(rowName) && row.verifySeatNumber(seatNumber)) {
-                return row.getSeatByNumber(seatNumber);
+            if(row.getRowIdentifier().equals(rowName)) {
+                if(row.verifySeatNumber(seatNumber)) {
+                    return row.getSeatByNumber(seatNumber);
+                }else{
+                    return null;//seat not found
+                }
             }
         }
-        return null;
+        return null;//row not found
     }
 
     public List<Seat> getSeats() {

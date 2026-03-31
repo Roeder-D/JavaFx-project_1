@@ -23,7 +23,7 @@ public class ReservationController {
         String[] rowLetters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
         int rowId = 0;
         for (String letter : rowLetters) {
-            Seat.SeatType type = Seat.SeatType.standard;
+            Seat.SeatType type = Seat.SeatType.STANDARD;
 
             mainHall.addRow(new Row(letter, rowId, 15, type));
             rowId++;

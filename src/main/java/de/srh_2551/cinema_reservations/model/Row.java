@@ -1,10 +1,11 @@
 package de.srh_2551.cinema_reservations.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Row {
     private String rowIdentifier;
-    private int rowId;
+    private final int rowId;
     private int seatCount;
     private List<Seat> seats;
 
@@ -26,14 +27,15 @@ public class Row {
     }
 
     public boolean verifySeatNumber(int seatNumber) {
-        return (seatNumber >= 0 && seatNumber <= this.seatCount);
+        return (seatNumber > 0 && seatNumber <= this.seatCount);
     }
 
 
     //setup
     private void initializeSeats(Seat.SeatType seatType) {
+        this.seats = new ArrayList<>();
         for (int i = 1; i <= seatCount; i++) {
-            Seat newSeat = new Seat(i, rowId, seatType, Seat.SeatStatus.Free);
+            Seat newSeat = new Seat(i, rowId, seatType, Seat.SeatStatus.FREE);
             this.seats.add(newSeat);
         }
     }
@@ -43,10 +45,6 @@ public class Row {
         return rowIdentifier;
     }
 
-    public void setRowIdentifier(String rowIdentifier) {
-        this.rowIdentifier = rowIdentifier;
-    }
-
     public List<Seat> getSeats() {
         return seats;
     }
@@ -54,10 +52,11 @@ public class Row {
     //helper
     public Seat getSeatByNumber(int seatNumber) {
         if (verifySeatNumber(seatNumber)) {
-            for (Seat seat : this.seats) {
-                if (seat.getSeatNumber() == seatNumber) {
-                    return seat;
-                }
+            Seat selectedSeat = this.seats.get(seatNumber-1);
+            if(selectedSeat.getSeatNumber() == seatNumber) {
+                return selectedSeat;
+            }else{
+                throw new IllegalStateException("Internal error: index out of sync!");
             }
         }
         return null;

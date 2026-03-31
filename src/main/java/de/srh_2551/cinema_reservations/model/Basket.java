@@ -2,20 +2,18 @@ package de.srh_2551.cinema_reservations.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Basket {
-    private static int nextBasketId = 0;
+    private static final AtomicInteger nextBasketId = new AtomicInteger(1);
 
-    private int basketId;
+    private final int basketId;
     private List<Seat> selectedSeats;
-    private double price;
-
 
     //constructor
     public Basket() {
-        this.basketId = nextBasketId++;
+        this.basketId = nextBasketId.getAndIncrement();
         this.selectedSeats = new ArrayList<>();
-        this.price = 0;
     }
 
     //getter & setter
@@ -24,7 +22,7 @@ public class Basket {
     }
 
     public List<Seat> getSelectedSeats() {
-        return selectedSeats;
+        return java.util.Collections.unmodifiableList(selectedSeats);
     }
 
     public double getPrice() {
@@ -33,5 +31,30 @@ public class Basket {
                 .sum();
     }
 
+    public void addSeat(Seat seat){
+        if(seat != null && !selectedSeats.contains(seat) && seat.getSeatStatus() ==  Seat.SeatStatus.FREE){
+            selectedSeats.add(seat);
+            seat.setSeatStatus(Seat.SeatStatus.SELECTED);
+        }else{
+            throw new IllegalStateException("Seat is not available!");
+        }
+    }
+
+    public void removeSeat(Seat seat){
+        if(selectedSeats.contains(seat)){
+            selectedSeats.remove(seat);
+            seat.setSeatStatus(Seat.SeatStatus.FREE);
+        }
+    }
+
+    //helper
+    public boolean confirmOrder(){
+        for(Seat seat : selectedSeats){
+            if(seat.getSeatStatus().equals(Seat.SeatStatus.SELECTED)){
+                seat.setSeatStatus(Seat.SeatStatus.BOOKED);
+            }
+        }
+        return true;
+    }
 
 }
