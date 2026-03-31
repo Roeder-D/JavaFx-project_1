@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Row {
-    private String rowIdentifier;
+    private final String rowIdentifier;
     private final int rowId;
-    private int seatCount;
+    private final int seatCount;
     private List<Seat> seats;
 
     //constructor

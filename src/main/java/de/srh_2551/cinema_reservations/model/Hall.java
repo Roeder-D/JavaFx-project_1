@@ -5,13 +5,13 @@ import java.util.List;
 
 public class Hall {
     private String name;
-    private List<Row> rows;
+    private final List<Row> rows;
 
     //constructor
     public Hall(String name) {
         if(verifyName(name)) {
             this.name = name;
-            this.rows = new ArrayList<Row>();
+            this.rows = new ArrayList<>();
         }else {
             throw new IllegalArgumentException("Invalid name!");
         }
@@ -83,8 +83,7 @@ public class Hall {
     public List<Seat> getSeatsByStatus(Seat.SeatStatus seatStatus) {
         List<Seat> seats = new ArrayList<>();
         for (Row row : this.rows) {
-            row.getSeatsByStatus(seatStatus);
-            seats.addAll(row.getSeats());
+            seats.addAll(row.getSeatsByStatus(seatStatus));
         }
         return java.util.Collections.unmodifiableList(seats);
     }

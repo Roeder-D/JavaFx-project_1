@@ -11,7 +11,7 @@ public class Seat {
         PREMIUM(15.0),
         DELUXE(20.0);
 
-        private double price;
+        private final double price;
         SeatType(double price){
             this.price = price;
         }

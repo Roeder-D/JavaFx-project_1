@@ -66,7 +66,7 @@ public class CsvManager {
             return new Hall(hallName);
         }
 
-        Hall hall =null;
+        Hall hall;
         //Open file reader using try-with-resources
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 
@@ -112,7 +112,7 @@ public class CsvManager {
                     seat.setSeatStatus(seatStatus);
                 }
             }
-            System.out.println("Load succesful!");
+            System.out.println("Load successful!");
         }catch(Exception e){
             System.err.println("Critical Error loading from CSV: " + e.getMessage());
             e.printStackTrace();
