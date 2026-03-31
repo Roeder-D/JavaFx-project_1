@@ -71,4 +71,8 @@ public class Row {
         }
         return java.util.Collections.unmodifiableList(selectedSeats);
     }
+
+    public int getRowId() {
+        return this.rowId;
+    }
 }

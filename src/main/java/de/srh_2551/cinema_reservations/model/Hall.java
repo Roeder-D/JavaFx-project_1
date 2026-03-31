@@ -88,4 +88,25 @@ public class Hall {
         }
         return java.util.Collections.unmodifiableList(seats);
     }
+
+    public Row getRow(int rowId) {
+        for(Row row :  this.rows) {
+            if(row.getRowId() == rowId) {
+                return row;
+            }
+        }
+        return null;
+    }
+
+    public int getSeatCount(){
+        int count = 0;
+        for(Row row : this.rows) {
+            count += row.getSeats().size();
+        }
+        return count;
+    }
+
+    public int getSeatCount(Seat.SeatStatus seatStatus){
+        return getSeatsByStatus(seatStatus).size();
+    }
 }
