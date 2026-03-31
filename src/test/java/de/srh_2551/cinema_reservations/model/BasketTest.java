@@ -65,7 +65,7 @@ class BasketTest {
 
         basket.removeSeat(premiumSeat);
 
-        assertEquals(10.0, basket.getPrice(), "Price shoul decrease after removal");
+        assertEquals(10.0, basket.getPrice(), "Price should decrease after removal");
     }
 
     @Test
@@ -74,4 +74,16 @@ class BasketTest {
 
         assertThrows(IllegalStateException.class, () -> {basket.addSeat(standardSeat);});
     }
+
+    @Test
+    void testSeatAdjacent(){
+        basket.addSeat(standardSeat);
+
+        Seat seat3 = new Seat(3, 1, Seat.SeatType.STANDARD, Seat.SeatStatus.FREE);
+        Seat seat4 = new Seat(2, 2, Seat.SeatType.STANDARD, Seat.SeatStatus.FREE);
+
+        assertThrows(IllegalStateException.class, () -> {basket.addSeat(seat3);}, "Seat must be adjacent");
+        assertThrows(IllegalStateException.class, () -> {basket.addSeat(seat4);}, "Seat must be in the same row");
+    }
+
 }

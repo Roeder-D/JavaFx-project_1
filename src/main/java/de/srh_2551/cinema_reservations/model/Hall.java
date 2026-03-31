@@ -79,4 +79,13 @@ public class Hall {
     }
 
 
+    //helper
+    public List<Seat> getSeatsByStatus(Seat.SeatStatus seatStatus) {
+        List<Seat> seats = new ArrayList<>();
+        for (Row row : this.rows) {
+            row.getSeatsByStatus(seatStatus);
+            seats.addAll(row.getSeats());
+        }
+        return java.util.Collections.unmodifiableList(seats);
+    }
 }

@@ -8,7 +8,7 @@ public class Basket {
     private static final AtomicInteger nextBasketId = new AtomicInteger(1);
 
     private final int basketId;
-    private List<Seat> selectedSeats;
+    private final List<Seat> selectedSeats;
 
     //constructor
     public Basket() {
@@ -32,11 +32,15 @@ public class Basket {
     }
 
     public void addSeat(Seat seat){
-        if(seat != null && !selectedSeats.contains(seat) && seat.getSeatStatus() ==  Seat.SeatStatus.FREE){
-            selectedSeats.add(seat);
-            seat.setSeatStatus(Seat.SeatStatus.SELECTED);
+        if(seatIsAdjacent(seat)) {
+            if (seat != null && !selectedSeats.contains(seat) && seat.getSeatStatus() == Seat.SeatStatus.FREE) {
+                selectedSeats.add(seat);
+                seat.setSeatStatus(Seat.SeatStatus.SELECTED);
+            } else {
+                throw new IllegalStateException("Seat is not available!");
+            }
         }else{
-            throw new IllegalStateException("Seat is not available!");
+            throw new IllegalStateException("Seats must be adjacent!");
         }
     }
 
@@ -53,6 +57,20 @@ public class Basket {
             if(seat.getSeatStatus().equals(Seat.SeatStatus.SELECTED)){
                 seat.setSeatStatus(Seat.SeatStatus.BOOKED);
             }
+        }
+        return true;
+    }
+
+    public boolean seatIsAdjacent(Seat selectedSeat){
+        if(!selectedSeats.isEmpty()) {
+            for (Seat seat : selectedSeats) {
+                if (selectedSeat.getRowId() == (seat.getRowId())) {
+                    if (selectedSeat.getSeatNumber() == (seat.getSeatNumber() - 1) || selectedSeat.getSeatNumber() == (seat.getSeatNumber() + 1)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
         return true;
     }

@@ -61,4 +61,14 @@ public class Row {
         }
         return null;
     }
+
+    public List<Seat> getSeatsByStatus(Seat.SeatStatus seatStatus) {
+        List<Seat> selectedSeats = new ArrayList<>();
+        for (Seat seat : this.seats) {
+            if (seat.getSeatStatus().equals(seatStatus)) {
+                selectedSeats.add(seat);
+            }
+        }
+        return java.util.Collections.unmodifiableList(selectedSeats);
+    }
 }
