@@ -17,12 +17,16 @@ public class CsvManager {
 
     //configuration
     private static final String CSV_HEADER = "RowName,RowId,TotalSeats,SeatNumber,SeatType,SeatStatus";
-
+    private static final String FOLDER_PATH = "data/";
 
     //Saving hall to CSV
     public static void saveHall(Hall hall){
+        File folder = new File(FOLDER_PATH);
+        if(!folder.exists()){
+            throw new RuntimeException("Directory doesn't exist");
+        }
         //creating file name and removing spaces
-        String fileName = hall.getName().replaceAll("\\s+", "_") + ".csv";
+        String fileName = FOLDER_PATH + hall.getName().replaceAll("\\s+", "_") + ".csv";
 
 
         System.out.println("Saving Hall: " + hall.getName() + " to " + fileName);
@@ -58,7 +62,7 @@ public class CsvManager {
     //Loading from CSV
     public static Hall loadHall(String hallName){
         //creating file name and removing spaces
-        String fileName = hallName.replaceAll("\\s+", "_") + ".csv";
+        String fileName = FOLDER_PATH + hallName.replaceAll("\\s+", "_") + ".csv";
         File file = new File(fileName);
 
         if(!file.exists()) {
@@ -92,12 +96,12 @@ public class CsvManager {
                 int totalSeats = Integer.parseInt(data[2]);
                 int seatNum = Integer.parseInt(data[3]);
 
-                // Convert Strings back into Enums
+                //Convert Strings back into Enums
                 Seat.SeatType seatType = Seat.SeatType.valueOf(data[4]);
                 Seat.SeatStatus seatStatus = Seat.SeatStatus.valueOf(data[5]);
 
                 //Reconstruct Objects
-                // First, check if we've already built this row during a previous loop
+                //Check if row already exists
                 Row currentRow = hall.getRow(rowId);
 
                 if (currentRow == null) {
@@ -105,7 +109,7 @@ public class CsvManager {
                     hall.addRow(currentRow);
                 }
 
-                // 5. Apply the specific seat's status
+                //Apply the specific seat's status
                 Seat seat = currentRow.getSeatByNumber(seatNum);
                 if (seat != null) {
                     seat.setSeatType(seatType);
@@ -126,7 +130,12 @@ public class CsvManager {
     public static List<String> getAllHallNames() {
         List<String> hallNames = new ArrayList<>();
 
-        File folder = new File(".");
+        File folder = new File(FOLDER_PATH);
+
+        if (!folder.exists()) {
+            throw new RuntimeException("Folder does not exist!");
+        }
+
         File[] listOfFiles = folder.listFiles();
 
         if (listOfFiles != null) {

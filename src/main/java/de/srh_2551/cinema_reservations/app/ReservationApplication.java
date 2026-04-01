@@ -11,7 +11,7 @@ public class ReservationApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(ReservationApplication.class.getResource("/de/srh_2551/cinema_reservations/cinema_reservations.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+        Scene scene = new Scene(fxmlLoader.load(), 1000, 660);
         stage.setTitle("Reservierung");
         stage.setScene(scene);
         stage.show();
