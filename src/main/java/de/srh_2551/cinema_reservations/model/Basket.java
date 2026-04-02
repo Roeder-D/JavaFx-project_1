@@ -9,11 +9,13 @@ public class Basket {
 
     private final int basketId;
     private final List<Seat> selectedSeats;
+    private final Hall selectedHall;
 
     //constructor
-    public Basket() {
+    public Basket(Hall selectedHall) {
         this.basketId = nextBasketId.getAndIncrement();
         this.selectedSeats = new ArrayList<>();
+        this.selectedHall = selectedHall;
     }
 
     //getter & setter
@@ -22,7 +24,16 @@ public class Basket {
     }
 
     public List<Seat> getSelectedSeats() {
+
         return java.util.Collections.unmodifiableList(selectedSeats);
+    }
+
+    public String getRowIdentifier() {
+        if(!selectedSeats.isEmpty()) {
+            return selectedHall.getRow(selectedSeats.getFirst().getRowId()).getRowIdentifier();
+        }else{
+            return "Error";
+        }
     }
 
     public double getPrice() {
@@ -62,6 +73,7 @@ public class Basket {
     }
 
     public boolean seatIsAdjacent(Seat selectedSeat){
+        //TODO: Look for booked seats in row (min gap 2)?
         if(!selectedSeats.isEmpty()) {
             for (Seat seat : selectedSeats) {
                 if (selectedSeat.getRowId() == (seat.getRowId())) {

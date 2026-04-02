@@ -7,13 +7,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BasketTest {
 
+    private Hall hall = new Hall("testHall");
     private Basket basket;
     private Seat standardSeat;
     private Seat premiumSeat;
 
     @BeforeEach
     void setUp() {
-        basket = new Basket();
+        basket = new Basket(hall);
         standardSeat = new Seat(1, 1, Seat.SeatType.STANDARD, Seat.SeatStatus.FREE);
         premiumSeat = new Seat(2, 1, Seat.SeatType.PREMIUM, Seat.SeatStatus.FREE);
     }
@@ -54,7 +55,7 @@ class BasketTest {
 
     @Test
     void testBasketIdItterates(){
-        Basket basket2 = new Basket();
+        Basket basket2 = new Basket(hall);
         assertEquals(basket.getBasketId()+1, basket2.getBasketId(), "BasketId should increment by 1");
     }
 
