@@ -47,36 +47,50 @@ public class Basket {
     }
 
     public void addSeat(Seat seat){
-        if(seatIsAdjacent(seat)) {
-            if (seat != null && !selectedSeats.contains(seat) && seat.getSeatStatus() == Seat.SeatStatus.FREE) {
-                selectedSeats.add(seat);
-                seat.setSeatStatus(Seat.SeatStatus.SELECTED);
-            } else {
-                throw new IllegalStateException("Seat is not available!");
-            }
-        }else{
-            throw new IllegalStateException("Seats must be adjacent!");
+        //check for null
+        if (seat == null) {
+            throw new IllegalStateException("Seat is not available!");
         }
+        //check for adjacent
+        if(!seatIsAdjacent(seat)) {
+                throw new IllegalStateException("Seats must be adjacent!");
+            }
+
+        //check for new gaps
+        if(createsSingleGap(seat)){
+        throw new IllegalStateException("Seat can't create a single gap");
+        }
+
+        //add seat
+        selectedSeats.add(seat);
+        seat.setSeatStatus(Seat.SeatStatus.SELECTED);
     }
 
     public void removeSeat(Seat seat){
         int seatNmb = seat.getSeatNumber();
         int matches = 0;
-
+        //check for existence
         if(!selectedSeats.contains(seat)) {
             throw new IllegalStateException("Seat does not exist!");
-        }else{
+        }
+        //prevent center selection
+        else{
             for(Seat selectedSeat : selectedSeats) {
                 if(selectedSeat.getSeatNumber() == seatNmb + 1 || selectedSeat.getSeatNumber() == seatNmb - 1) {
                     matches++;
                 }
             }
-            if(matches < 2){
-                selectedSeats.remove(seat);
-                seat.setSeatStatus(Seat.SeatStatus.FREE);
-            }else{
+            if(matches >= 2){
                 throw new IllegalStateException("Seats must be adjacent!");
+
             }
+            //prevent new gaps
+            if(!removalAllowed(seat)) {
+                throw new IllegalStateException("Cannot leave a single empty seat unless enclosed!");
+            }
+
+            selectedSeats.remove(seat);
+            seat.setSeatStatus(Seat.SeatStatus.FREE);
         }
     }
 
@@ -91,7 +105,7 @@ public class Basket {
     }
 
     public boolean seatIsAdjacent(Seat selectedSeat){
-        //TODO: Look for booked seats in row (min gap 2)?
+        //first seat in selection skips this
         if(!selectedSeats.isEmpty()) {
             for (Seat seat : selectedSeats) {
                 if (selectedSeat.getRowId() == (seat.getRowId())) {
@@ -105,8 +119,76 @@ public class Basket {
         return true;
     }
 
+    public boolean createsSingleGap(Seat selectedSeat){
+        Row selectedRow = getSelectedHall().getRow(selectedSeat.getRowId());
+        int seatNmb = selectedSeat.getSeatNumber();
+
+        Seat.SeatStatus seatMinus1 = null;
+        Seat.SeatStatus seatPlus1 = null;
+        Seat.SeatStatus seatMinus2  = null;
+        Seat.SeatStatus seatPlus2 = null;
+
+        for(Seat seat : selectedRow.getSeats()){
+            if(seat.getSeatNumber() == seatNmb - 1){
+                seatMinus1 = seat.getSeatStatus();
+            }else if(seat.getSeatNumber() == seatNmb + 1){
+                seatPlus1 = seat.getSeatStatus();
+            }else if(seat.getSeatNumber() == seatNmb + 2){
+                seatPlus2 = seat.getSeatStatus();
+            }else if(seat.getSeatNumber() == seatNmb - 2){
+                seatMinus2 = seat.getSeatStatus();
+            }
+        }
+        if(seatPlus1 != Seat.SeatStatus.FREE || seatMinus1 != Seat.SeatStatus.FREE){
+            return false;
+        }
+        if(seatPlus2 != Seat.SeatStatus.FREE){
+            return true;
+        }else return seatMinus2 != Seat.SeatStatus.FREE;
+    }
+
+
     public void clearSeats(){
         selectedSeats.clear();
     }
 
+    private boolean removalAllowed(Seat selectedSeat){
+        Row selectedRow = getSelectedHall().getRow(selectedSeat.getRowId());
+        int selectedId = selectedSeat.getSeatNumber();
+
+        boolean minFree = false;
+        boolean maxFree = false;
+        int min = 9999;
+        int max = 0;
+        for(Seat seat : selectedSeats){
+            int seatId = seat.getSeatNumber();
+            if(seatId < min){
+                min = seatId;
+            }
+            if(seatId > max){
+                max = seatId;
+            }
+        }
+        if(selectedRow.getSeatByNumber(min-1) != null &&  selectedRow.getSeatByNumber(min-1).getSeatStatus() == Seat.SeatStatus.FREE){
+            minFree = true;
+        }
+        if(selectedRow.getSeatByNumber(max+1) != null && selectedRow.getSeatByNumber( max+1).getSeatStatus() == Seat.SeatStatus.FREE){
+            maxFree = true;
+        }
+        //true if only one
+        if(min == max){
+            return true;
+        }
+        //true when enclosed
+        if(minFree == maxFree){
+            return true;
+        }
+
+        if (minFree) {
+            return min == selectedId;
+        } else {
+            return max == selectedId;
+        }
+
+    }
 }

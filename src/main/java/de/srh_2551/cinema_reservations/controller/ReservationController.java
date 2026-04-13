@@ -164,7 +164,7 @@ public class ReservationController {
     private void refreshBasketList(){
         basketSeatList.getItems().clear();
         for(Seat seat : currentBasket.getSelectedSeats()){
-            basketSeatList.getItems().add("Sitz: " + currentBasket.getRowIdentifier() + "-" + seat.getSeatNumber());
+            basketSeatList.getItems().add("Sitz: " + currentBasket.getRowIdentifier() + "-" + seat.getSeatNumber() + " Preis: " + seat.getSeatType().getPrice());
         }
     }
 
