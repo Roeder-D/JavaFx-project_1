@@ -42,6 +42,10 @@ public class Basket {
                 .sum();
     }
 
+    public Hall getSelectedHall() {
+        return selectedHall;
+    }
+
     public void addSeat(Seat seat){
         if(seatIsAdjacent(seat)) {
             if (seat != null && !selectedSeats.contains(seat) && seat.getSeatStatus() == Seat.SeatStatus.FREE) {
@@ -56,9 +60,23 @@ public class Basket {
     }
 
     public void removeSeat(Seat seat){
-        if(selectedSeats.contains(seat)){
-            selectedSeats.remove(seat);
-            seat.setSeatStatus(Seat.SeatStatus.FREE);
+        int seatNmb = seat.getSeatNumber();
+        int matches = 0;
+
+        if(!selectedSeats.contains(seat)) {
+            throw new IllegalStateException("Seat does not exist!");
+        }else{
+            for(Seat selectedSeat : selectedSeats) {
+                if(selectedSeat.getSeatNumber() == seatNmb + 1 || selectedSeat.getSeatNumber() == seatNmb - 1) {
+                    matches++;
+                }
+            }
+            if(matches < 2){
+                selectedSeats.remove(seat);
+                seat.setSeatStatus(Seat.SeatStatus.FREE);
+            }else{
+                throw new IllegalStateException("Seats must be adjacent!");
+            }
         }
     }
 
@@ -85,6 +103,10 @@ public class Basket {
             return false;
         }
         return true;
+    }
+
+    public void clearSeats(){
+        selectedSeats.clear();
     }
 
 }

@@ -63,7 +63,7 @@
                          <buttons>
                              <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#handleCancelBtnClick"
                                      text="Cancel"/>
-                             <Button fx:id="confirmOrderBtn" mnemonicParsing="false"
+                             <Button fx:id="confirmOrderBtn" mnemonicParsing="false" onAction="#handleConfirmOrderClick"
                                      style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"
                                      text="Confirm Order"/>
                          </buttons>
