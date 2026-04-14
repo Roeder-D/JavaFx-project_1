@@ -68,4 +68,16 @@ public class Seat {
     public int getRowId() {
         return rowId;
     }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Seat seat = (Seat) o;
+        return seatNumber == seat.seatNumber && rowId == seat.rowId;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(seatNumber, rowId);
+    }
 }

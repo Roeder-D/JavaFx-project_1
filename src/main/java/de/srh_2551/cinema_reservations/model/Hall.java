@@ -53,7 +53,7 @@ public class Hall {
     }
 
     public List<Row> getRows() {
-        return rows;
+        return java.util.Collections.unmodifiableList(rows);
     }
 
 

@@ -8,7 +8,7 @@ class RowTest {
 
     @Test
     void testValidRowCreation() {
-        Row row = new Row("Row A", 1, 10, Seat.SeatType.STANDARD);
+        Row row = new Row("Row A", 1, 10, Seat.SeatType.STANDARD, false);
 
         assertEquals("Row A", row.getRowIdentifier());
         assertEquals(10, row.getSeats().size(), "Row should initialize exactly 10 seats");
@@ -18,16 +18,16 @@ class RowTest {
     void testInvalidRowCreationThrowsException() {
         // Test invalid name
         assertThrows(IllegalArgumentException.class,
-                () -> new Row("Invalid@Name!", 1, 10, Seat.SeatType.STANDARD));
+                () -> new Row("Invalid@Name!", 1, 10, Seat.SeatType.STANDARD, false));
 
         // Test invalid seat count (0 or negative)
         assertThrows(IllegalArgumentException.class,
-                () -> new Row("Row B", 2, 0, Seat.SeatType.STANDARD));
+                () -> new Row("Row B", 2, 0, Seat.SeatType.STANDARD, false));
     }
 
     @Test
     void testGetSeatByNumber() {
-        Row row = new Row("Row A", 1, 10, Seat.SeatType.STANDARD);
+        Row row = new Row("Row A", 1, 10, Seat.SeatType.STANDARD, false);
 
         // Valid seat
         Seat seat5 = row.getSeatByNumber(5);

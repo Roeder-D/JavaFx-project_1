@@ -5,7 +5,6 @@ import de.srh_2551.cinema_reservations.model.Basket;
 import de.srh_2551.cinema_reservations.model.Hall;
 import de.srh_2551.cinema_reservations.model.Row;
 import de.srh_2551.cinema_reservations.model.Seat;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -13,6 +12,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Screen;
+import javafx.geometry.Rectangle2D;
 
 import java.util.List;
 
@@ -26,6 +27,8 @@ public class ReservationController {
     @FXML
     private VBox seatContainer;
     @FXML
+    private ScrollPane seatScrollPane;
+    @FXML
     private ComboBox<String> hallComboBox;
     @FXML
     private BorderPane basketView;
@@ -35,6 +38,7 @@ public class ReservationController {
     private ListView<String> basketSeatList;
     @FXML
     private Label totalPriceLabel;
+
 
     // ===================
     //Data
@@ -61,7 +65,6 @@ public class ReservationController {
        hallComboBox.getItems().addAll(hallNames);
 
        hallComboBox.setOnAction(event -> {
-           if(hallComboBox.getValue() != null){
            String selectedHall = hallComboBox.getValue();
 
            if (selectedHall != null) {
@@ -71,7 +74,7 @@ public class ReservationController {
                currentBasket = new Basket(loadedHall);
 
                createSeatPlan(loadedHall);
-           }}
+           }
        });
    }
 
@@ -80,6 +83,11 @@ public class ReservationController {
     // ===================
     @FXML
     private void handleCancelBtnClick() {
+        //cancel order
+        if(currentBasket != null){
+            currentBasket.cancelOrder();
+        }
+        //destroy basket
         currentBasket = null;
 
         hallComboBox.setValue(null);
@@ -87,9 +95,7 @@ public class ReservationController {
 
         showDefaultView();
 
-        //resize window
-        Stage stage = (Stage) defaultView.getScene().getWindow();
-        stage.sizeToScene();
+        resizeWindow();
     }
     private void handleSeatClick(Button seatBtn, Seat seat) {
         try {
@@ -108,13 +114,14 @@ public class ReservationController {
     @FXML
     private void handleConfirmOrderClick(){
         currentBasket.confirmOrder();
-        currentBasket.clearSeats();
 
         //Save to csv
         CsvManager.saveHall(currentBasket.getSelectedHall());
 
         //Return to start page
         showDefaultView();
+
+        resizeWindow();
     }
 
     // ===================
@@ -122,38 +129,39 @@ public class ReservationController {
     // ===================
     private void showDefaultView() {
         defaultView.setVisible(true);
-        seatContainer.setVisible(false);
+        seatScrollPane.setVisible(false);
         basketView.setVisible(false);
 
         switchBasketBtn.setVisible(false);
+
+        populateHallMenu();
+        fixComboBoxRenderer();
     }
 
     private void showSeatGrid(){
         defaultView.setVisible(false);
-        seatContainer.setVisible(true);
+        seatScrollPane.setVisible(true);
         basketView.setVisible(false);
 
         switchBasketBtn.setVisible(true);
         switchBasketBtn.setText("Warenkorb");
-        switchBasketBtn.setOnAction(event -> {
-            showBasketView();
-        });
+        switchBasketBtn.setOnAction(event -> showBasketView());
     }
 
     private void showBasketView(){
         defaultView.setVisible(false);
-        seatContainer.setVisible(false);
+        seatScrollPane.setVisible(false);
         basketView.setVisible(true);
 
         switchBasketBtn.setVisible(true);
         switchBasketBtn.setText("Saal");
-        switchBasketBtn.setOnAction(event -> {
-            showSeatGrid();
-        });
+        switchBasketBtn.setOnAction(event -> showSeatGrid());
 
         //generate list & price
         refreshBasketList();
         updatePriceLabel();
+
+        //TODO: Make this shine and add cancelSeat() and discount options
     }
     private void refreshBasketList(){
         basketSeatList.getItems().clear();
@@ -183,30 +191,37 @@ public class ReservationController {
     private void createSeatPlan(Hall hall) {
         seatContainer.getChildren().clear();
 
-
+        int rowCount = 0;
         for(Row row : hall.getRows()){
             String rowName = row.getRowIdentifier();
 
+            //create gap between two rows
+            if(row.getGapInFront()){
+                HBox gapBox = new HBox();
+                gapBox.setPrefHeight(10);
+                seatContainer.getChildren().add(gapBox);
+            }
+
             HBox rowBox = new HBox(5);//5 pixel gap between seats
             rowBox.setAlignment(Pos.CENTER);
+
+            //stagger rows
+            if(rowCount % 2 == 0){
+                rowBox.setTranslateX(25);
+            }
 
             for(Seat seat : row.getSeats()){
                 Button seatBtn = createSeatButton(rowName, seat);
                 rowBox.getChildren().add(seatBtn);
             }
-
+            rowCount ++;
             seatContainer.getChildren().add(rowBox);
         }
 
         //Switch view
         showSeatGrid();
 
-        //resize window
-        Platform.runLater(() -> {
-            Stage stage = (Stage) seatContainer.getScene().getWindow();
-            stage.sizeToScene();
-        });
-
+        resizeWindow();
     }
 
     //Generating seats
@@ -216,7 +231,7 @@ public class ReservationController {
 
         applySeatStyle(seatBtn, seat);
 
-        seatBtn.setOnAction(event -> {handleSeatClick(seatBtn, seat);});
+        seatBtn.setOnAction(event -> handleSeatClick(seatBtn, seat));
 
         return seatBtn;
     }
@@ -270,6 +285,24 @@ public class ReservationController {
                 }
             }
         });
+    }
+
+    private void resizeWindow(){
+        Stage stage = (Stage) defaultView.getScene().getWindow();
+        stage.sizeToScene();
+
+        //check for screen size
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+
+        //limit stage size
+        if (stage.getHeight() > screenBounds.getHeight()) {
+            stage.setHeight(screenBounds.getHeight());
+        }
+        if (stage.getWidth() > screenBounds.getWidth()) {
+            stage.setWidth(screenBounds.getWidth());
+        }
+        //center window on screen
+        stage.centerOnScreen();
     }
 
 }

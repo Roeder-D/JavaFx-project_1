@@ -57,7 +57,7 @@ public class Basket {
             }
 
         //check for new gaps
-        if(createsSingleGap(seat)){
+        if(createsIllegalGap(seat)){
         throw new IllegalStateException("Seat can't create a single gap");
         }
 
@@ -101,7 +101,22 @@ public class Basket {
                 seat.setSeatStatus(Seat.SeatStatus.BOOKED);
             }
         }
+        selectedSeats.clear();
         return true;
+    }
+
+    //helper
+
+    public void cancelOrder(){
+        for(Seat seat : selectedSeats){
+            seat.setSeatStatus(Seat.SeatStatus.FREE);
+        }
+        selectedSeats.clear();
+    }
+
+    public void cancelSeat(Seat seat){
+        seat.setSeatStatus(Seat.SeatStatus.FREE);
+        selectedSeats.remove(seat);
     }
 
     public boolean seatIsAdjacent(Seat selectedSeat){
@@ -119,7 +134,7 @@ public class Basket {
         return true;
     }
 
-    public boolean createsSingleGap(Seat selectedSeat){
+    public boolean createsIllegalGap(Seat selectedSeat){
         Row selectedRow = getSelectedHall().getRow(selectedSeat.getRowId());
         int seatNmb = selectedSeat.getSeatNumber();
 
@@ -128,28 +143,26 @@ public class Basket {
         Seat.SeatStatus seatMinus2  = null;
         Seat.SeatStatus seatPlus2 = null;
 
-        for(Seat seat : selectedRow.getSeats()){
-            if(seat.getSeatNumber() == seatNmb - 1){
-                seatMinus1 = seat.getSeatStatus();
-            }else if(seat.getSeatNumber() == seatNmb + 1){
-                seatPlus1 = seat.getSeatStatus();
-            }else if(seat.getSeatNumber() == seatNmb + 2){
-                seatPlus2 = seat.getSeatStatus();
-            }else if(seat.getSeatNumber() == seatNmb - 2){
-                seatMinus2 = seat.getSeatStatus();
-            }
+        if(selectedRow.getSeatByNumber(seatNmb - 1) != null){
+            seatMinus1 = selectedRow.getSeatByNumber(seatNmb - 1).getSeatStatus();
         }
+        if(selectedRow.getSeatByNumber(seatNmb + 1) != null){
+            seatPlus1 = selectedRow.getSeatByNumber(seatNmb + 1).getSeatStatus();
+        }
+        if(selectedRow.getSeatByNumber(seatNmb - 2) != null){
+            seatMinus2 = selectedRow.getSeatByNumber(seatNmb - 2).getSeatStatus();
+        }
+        if(selectedRow.getSeatByNumber(seatNmb + 2) != null){
+            seatPlus2 = selectedRow.getSeatByNumber(seatNmb + 2).getSeatStatus();
+        }
+
+
         if(seatPlus1 != Seat.SeatStatus.FREE || seatMinus1 != Seat.SeatStatus.FREE){
             return false;
         }
         if(seatPlus2 != Seat.SeatStatus.FREE){
             return true;
         }else return seatMinus2 != Seat.SeatStatus.FREE;
-    }
-
-
-    public void clearSeats(){
-        selectedSeats.clear();
     }
 
     private boolean removalAllowed(Seat selectedSeat){

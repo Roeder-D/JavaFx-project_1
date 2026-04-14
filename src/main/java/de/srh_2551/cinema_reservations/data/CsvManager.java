@@ -12,11 +12,15 @@ import java.io.FileWriter;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CsvManager {
+    //Set up Logger
+    private static final Logger LOGGER = Logger.getLogger(CsvManager.class.getName());
 
     //configuration
-    private static final String CSV_HEADER = "RowName,RowId,TotalSeats,SeatNumber,SeatType,SeatStatus";
+    private static final String CSV_HEADER = "RowName,RowId,TotalSeats,GapInFront,SeatNumber,SeatType,SeatStatus";
     private static final String FOLDER_PATH = "data/";
 
     //Saving hall to CSV
@@ -41,10 +45,11 @@ public class CsvManager {
 
                 //Writing a single seat in a line
                 for (Seat seat : row.getSeats()) {
-                    String line = String.format("%s,%d,%d,%d,%s,%s",
+                    String line = String.format("%s,%d,%d,%b,%d,%s,%s",
                             row.getRowIdentifier(),
                             row.getRowId(),
                             totalSeatsInRow,
+                            row.getGapInFront(),
                             seat.getSeatNumber(),
                             seat.getSeatType().name(),
                             seat.getSeatStatus().name()
@@ -54,8 +59,7 @@ public class CsvManager {
             }
             System.out.println("Save successful!");
         }catch(Exception e){
-            System.err.println("Critical Error saving to CSV: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Critical Error saving to CSV: " + fileName, e);
         }
     }
 
@@ -81,31 +85,34 @@ public class CsvManager {
             hall =new Hall(extractedHallName);
 
             //Skip header
-            String line = reader.readLine();
+            reader.readLine();
 
             //Read the rest
+            String line;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
 
                 // Safety check to make sure the line contains the right amount of data
-                if (data.length != 6) continue;
+                if (data.length != 7) continue;
 
                 // Extract the data from the array
                 String rowName = data[0];
                 int rowId = Integer.parseInt(data[1]);
                 int totalSeats = Integer.parseInt(data[2]);
-                int seatNum = Integer.parseInt(data[3]);
+                boolean gapInFront = Boolean.parseBoolean(data[3]);
+                int seatNum = Integer.parseInt(data[4]);
+
 
                 //Convert Strings back into Enums
-                Seat.SeatType seatType = Seat.SeatType.valueOf(data[4]);
-                Seat.SeatStatus seatStatus = Seat.SeatStatus.valueOf(data[5]);
+                Seat.SeatType seatType = Seat.SeatType.valueOf(data[5]);
+                Seat.SeatStatus seatStatus = Seat.SeatStatus.valueOf(data[6]);
 
                 //Reconstruct Objects
                 //Check if row already exists
                 Row currentRow = hall.getRow(rowId);
 
                 if (currentRow == null) {
-                    currentRow = new Row(rowName, rowId, totalSeats, seatType);
+                    currentRow = new Row(rowName, rowId, totalSeats, seatType, gapInFront);
                     hall.addRow(currentRow);
                 }
 
@@ -118,8 +125,7 @@ public class CsvManager {
             }
             System.out.println("Load successful!");
         }catch(Exception e){
-            System.err.println("Critical Error loading from CSV: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Critical Error loading from CSV: " + fileName, e);
             hall = new Hall(hallName);
         }
 

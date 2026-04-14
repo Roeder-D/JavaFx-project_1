@@ -22,8 +22,8 @@ class HallTest {
     @Test
     void testAddRowAndGetSeat() {
         Hall hall = new Hall("Main Hall");
-        Row rowA = new Row("A", 1, 5, Seat.SeatType.PREMIUM);
-        Row rowB = new Row("B", 2, 5, Seat.SeatType.STANDARD);
+        Row rowA = new Row("A", 1, 5, Seat.SeatType.PREMIUM, false);
+        Row rowB = new Row("B", 2, 5, Seat.SeatType.STANDARD, false);
 
         hall.addRow(rowA);
         hall.addRow(rowB);
@@ -44,7 +44,7 @@ class HallTest {
     @Test
     void testDuplicateRowThrowsException() {
         Hall hall = new Hall("Main Hall");
-        Row rowA = new Row("A", 1, 5, Seat.SeatType.PREMIUM);
+        Row rowA = new Row("A", 1, 5, Seat.SeatType.PREMIUM, false);
 
         hall.addRow(rowA);
 

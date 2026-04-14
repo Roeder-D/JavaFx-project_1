@@ -1,4 +1,4 @@
-module de.srh_2551.cinema_reservations {
+module de.srh_.cinema_reservations {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
@@ -7,6 +7,7 @@ module de.srh_2551.cinema_reservations {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
+    requires java.logging;
 
     //opens de.srh_2551.cinema_reservations to javafx.fxml;
     //exports de.srh_2551.cinema_reservations;

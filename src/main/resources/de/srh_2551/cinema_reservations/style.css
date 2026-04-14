@@ -37,13 +37,22 @@
     -fx-background-color: lightgreen;
     -fx-opacity: 1;
 }
+.seat-free:hover {
+    -fx-background-color: #2E8B57, #B4F8B4; /* Slightly brighter fill on hover */
+}
 
 /*Premium*/
 .seat-free.type-premium {
     -fx-background-color: lightskyblue;
 }
+.seat-free.type-premium:hover {
+    -fx-background-color: #4682B4, #B0E2FF;
+}
 
 /*Deluxe*/
 .seat-free.type-deluxe {
     -fx-background-color: plum;
+}
+.seat-free.type-deluxe:hover {
+    -fx-background-color: #8B668B, #E6A8D7;
 }
