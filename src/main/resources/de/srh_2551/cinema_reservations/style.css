@@ -1,0 +1,49 @@
+/* styles.css */
+
+.seat-button{
+    -fx-pref-width: 50px;
+    -fx-pref-height: 50px;
+    -fx-min-width: 50px;
+    -fx-min-height: 50px;
+
+    -fx-shape: "M 50 40 C 50 50, 0 50, 0 40 L 0 5 C 0 0, 10 0, 10 5 L 10 30 L 40 30 L 40 5 C 40 0, 50 0, 50 5 Z M 39 29 L 11 29 L 11 2 C 11 -4, 39 -4, 39 2 Z";
+}
+
+.seat-free{
+    -fx-background-color: lightgreen;
+    -fx-opacity: 1;
+}
+
+.seat-booked{
+    -fx-background-color: lightgray;
+    -fx-opacity: 1;
+}
+
+.seat-selected{
+    -fx-background-color: yellow;
+    -fx-opacity: 1;
+}
+
+.seat-error{
+    -fx-background-color: #DDACAC;
+    -fx-opacity: 1;
+}
+
+/* Seat Types */
+.type-standard{
+    -fx-border-color: darkgray;
+    -fx-border-width: 1px;
+    -fx-background-insets: 0;
+}
+
+.type-premium{
+    -fx-border-color: silver;
+    -fx-border-width: 3px;
+    -fx-background-insets: 1;
+}
+
+.type-deluxe {
+    -fx-border-color: gold;
+    -fx-border-width: 4px;
+    -fx-background-insets: 2;
+}

@@ -6,27 +6,15 @@ import de.srh_2551.cinema_reservations.model.Hall;
 import de.srh_2551.cinema_reservations.model.Row;
 import de.srh_2551.cinema_reservations.model.Seat;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
 
 public class ReservationController {
-
-    //=====================
-    //Style
-    //=====================
-    //Seat status
-    private static final String STYLE_FREE = "-fx-background-color: lightgreen; -fx-opacity: 1;";
-    private static final String STYLE_BOOKED = "-fx-background-color: gray; -fx-opacity: 1;";
-    private static final String STYLE_SELECTED = "-fx-background-color: yellow; -fx-opacity: 1;";
-    private static final String STYLE_ERROR = "-fx-background-color: red; -fx-opacity: 1;";
-    //Seat type
-    private static final String STYLE_STANDARD = "-fx-border-color: darkgray; -fx-border-width: 1px; -fx-border-radius: 4px;-fx-background-radius: 4px;-fx-background-insets: 0;";
-    private static final String STYLE_PREMIUM = "-fx-border-color: silver; -fx-border-width: 3px; -fx-border-radius: 4px;-fx-background-radius: 4px;-fx-background-insets: 1;";
-    private static final String STYLE_DELUXE = "-fx-border-color: gold; -fx-border-width: 4px; -fx-border-radius: 4px;-fx-background-radius: 4px;-fx-background-insets: 2;";
 
     // ===================
     //FXML VARIABLES
@@ -34,7 +22,7 @@ public class ReservationController {
     @FXML
     private VBox defaultView;
     @FXML
-    private GridPane seatGrid;
+    private VBox seatContainer;
     @FXML
     private ComboBox<String> hallComboBox;
     @FXML
@@ -128,7 +116,7 @@ public class ReservationController {
     // ===================
     private void showDefaultView() {
         defaultView.setVisible(true);
-        seatGrid.setVisible(false);
+        seatContainer.setVisible(false);
         basketView.setVisible(false);
 
         switchBasketBtn.setVisible(false);
@@ -136,7 +124,7 @@ public class ReservationController {
 
     private void showSeatGrid(){
         defaultView.setVisible(false);
-        seatGrid.setVisible(true);
+        seatContainer.setVisible(true);
         basketView.setVisible(false);
 
         switchBasketBtn.setVisible(true);
@@ -148,7 +136,7 @@ public class ReservationController {
 
     private void showBasketView(){
         defaultView.setVisible(false);
-        seatGrid.setVisible(false);
+        seatContainer.setVisible(false);
         basketView.setVisible(true);
 
         switchBasketBtn.setVisible(true);
@@ -187,20 +175,23 @@ public class ReservationController {
 
     //build seat plan UI
     private void createSeatPlan(Hall hall) {
-        seatGrid.getChildren().clear();
+        seatContainer.getChildren().clear();
 
-        int rowIndex = 0;
-        for(Row row : hall.getRows()) {
+
+        for(Row row : hall.getRows()){
             String rowName = row.getRowIdentifier();
-            int colIndex = 0;
-            for(Seat seat : row.getSeats()) {
-                Button seatBtn = createSeatButton(rowName, seat);
 
-                seatGrid.add(seatBtn, colIndex, rowIndex);
-                colIndex++;
+            HBox rowBox = new HBox(5);//5 pixel gap between seats
+            rowBox.setAlignment(Pos.CENTER);
+
+            for(Seat seat : row.getSeats()){
+                Button seatBtn = createSeatButton(rowName, seat);
+                rowBox.getChildren().add(seatBtn);
             }
-            rowIndex++;
+
+            seatContainer.getChildren().add(rowBox);
         }
+
         //Switch view
         showSeatGrid();
     }
@@ -218,42 +209,40 @@ public class ReservationController {
     }
 
     private void applySeatStyle(Button seatBtn, Seat seat){
-        String style;
+        seatBtn.getStyleClass().setAll("button", "seat-button");
 
         switch(seat.getSeatStatus()) {
             case FREE:
-                style = STYLE_FREE;
+                seatBtn.getStyleClass().add("seat-free");
                 seatBtn.setDisable(false);
                 break;
             case SELECTED:
-                style = STYLE_SELECTED;
+                seatBtn.getStyleClass().add("seat-selected");
                 seatBtn.setDisable(false);
                 break;
-            case RESERVED:
-            case BOOKED:
-                style = STYLE_BOOKED;
+            case RESERVED, BOOKED:
+                seatBtn.getStyleClass().add("seat-booked");
                 seatBtn.setDisable(true);
                 break;
             default:
-                style = STYLE_ERROR;
+                seatBtn.getStyleClass().add("seat-error");
                 seatBtn.setDisable(true);
                 break;
         }
 
         switch(seat.getSeatType()){
             case STANDARD:
-                style += STYLE_STANDARD;
+                seatBtn.getStyleClass().add("type-standard");
                 break;
             case PREMIUM:
-                style += STYLE_PREMIUM;
+                seatBtn.getStyleClass().add("type-premium");
                 break;
             case DELUXE:
-                style += STYLE_DELUXE;
+                seatBtn.getStyleClass().add("type-deluxe");
                 break;
             default:
                 break;
         }
-        seatBtn.setStyle(style);
     }
     //manually filling the comboBox to fix bug with default renderer
     private void fixComboBoxRenderer(){
