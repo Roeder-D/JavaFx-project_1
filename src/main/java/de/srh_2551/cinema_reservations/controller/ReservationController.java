@@ -5,12 +5,14 @@ import de.srh_2551.cinema_reservations.model.Basket;
 import de.srh_2551.cinema_reservations.model.Hall;
 import de.srh_2551.cinema_reservations.model.Row;
 import de.srh_2551.cinema_reservations.model.Seat;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.util.List;
 
@@ -84,6 +86,10 @@ public class ReservationController {
         hallComboBox.getSelectionModel().clearSelection();
 
         showDefaultView();
+
+        //resize window
+        Stage stage = (Stage) defaultView.getScene().getWindow();
+        stage.sizeToScene();
     }
     private void handleSeatClick(Button seatBtn, Seat seat) {
         try {
@@ -194,6 +200,13 @@ public class ReservationController {
 
         //Switch view
         showSeatGrid();
+
+        //resize window
+        Platform.runLater(() -> {
+            Stage stage = (Stage) seatContainer.getScene().getWindow();
+            stage.sizeToScene();
+        });
+
     }
 
     //Generating seats
