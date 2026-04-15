@@ -73,6 +73,17 @@ public class Hall {
 
 
     //helper
+    public boolean containsSeatStatus(Seat.SeatStatus seatStatus){
+        for (Row row : this.rows) {
+            for(Seat seat : row.getSeats()){
+                if(seat.getSeatStatus() == seatStatus){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public Row getRow(int rowId) {
         for(Row row :  this.rows) {
             if(row.getRowId() == rowId) {

@@ -35,6 +35,9 @@
     .legend-deluxe {
         -fx-background-color: plum;
     }
+    .legend-out_of_order {
+        -fx-background-color: #EE9B9B;
+    }
 
 /* Cinema Screen Visual */
     .screenContainer {
@@ -82,7 +85,7 @@
     }
 
     .seat-error{
-        -fx-background-color: #DDACAC;
+        -fx-background-color: #EE9B9B;
         -fx-opacity: 1;
     }
 

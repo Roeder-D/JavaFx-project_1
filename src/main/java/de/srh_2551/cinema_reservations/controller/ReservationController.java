@@ -197,7 +197,7 @@ public class ReservationController {
         seatContainer.getChildren().clear();
 
         //Add Legend
-        seatContainer.getChildren().add(createLegend());
+        seatContainer.getChildren().add(createLegend(hall));
 
         //Add Screen
         seatContainer.getChildren().add(createScreen(hall));
@@ -235,15 +235,20 @@ public class ReservationController {
         resizeWindow();
     }
 
-    private HBox createLegend(){
+    private HBox createLegend(Hall currentHall){
         HBox legend = new HBox(20);
         legend.setAlignment(Pos.CENTER);
         legend.getStyleClass().add("legend");
+
         legend.getChildren().addAll(
                 createLegendItem("Standard", "legend-standard"),
                 createLegendItem("Premium", "legend-premium"),
                 createLegendItem("Deluxe", "legend-deluxe")
         );
+        if(currentHall.containsSeatStatus(Seat.SeatStatus.OUT_OF_ORDER)){
+            legend.getChildren().add(createLegendItem("Out of order", "legend-out_of_order"));
+        }
+
         return legend;
     }
 
