@@ -52,6 +52,10 @@ public class Row {
         return java.util.Collections.unmodifiableList(seats);
     }
 
+    public int getSeatCount() {
+        return seatCount;
+    }
+
     //helper
     public Seat getSeatByNumber(int seatNumber) {
         if (verifySeatNumber(seatNumber)) {
@@ -63,16 +67,6 @@ public class Row {
             }
         }
         return null;
-    }
-
-    public List<Seat> getSeatsByStatus(Seat.SeatStatus seatStatus) {
-        List<Seat> selectedSeats = new ArrayList<>();
-        for (Seat seat : this.seats) {
-            if (seat.getSeatStatus().equals(seatStatus)) {
-                selectedSeats.add(seat);
-            }
-        }
-        return java.util.Collections.unmodifiableList(selectedSeats);
     }
 
     public int getRowId() {

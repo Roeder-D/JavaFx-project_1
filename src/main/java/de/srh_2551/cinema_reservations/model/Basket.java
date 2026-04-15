@@ -167,18 +167,27 @@ public class Basket {
             seatPlus2 = selectedRow.getSeatByNumber(seatNmb + 2).getSeatStatus();
         }
 
+        boolean createsLeftGap = false;
+        boolean createsRightGap = false;
 
-        if(seatPlus1 != Seat.SeatStatus.FREE || seatMinus1 != Seat.SeatStatus.FREE){
-            return false;
+        if(seatMinus1 == Seat.SeatStatus.FREE){
+            if(seatMinus2 !=  Seat.SeatStatus.FREE){
+                createsLeftGap = true;
+            }
         }
-        if(seatPlus2 != Seat.SeatStatus.FREE){
-            return true;
-        }else return seatMinus2 != Seat.SeatStatus.FREE;
+        if(seatPlus1 == Seat.SeatStatus.FREE){
+            if(seatPlus2 !=  Seat.SeatStatus.FREE){
+                createsRightGap = true;
+            }
+        }
+        //block if creates a single seat gap
+        return createsLeftGap || createsRightGap;
     }
 
     public boolean removalNotAllowed(Seat selectedSeat){
         Row selectedRow = getSelectedHall().getRow(selectedSeat.getRowId());
         int selectedId = selectedSeat.getSeatNumber();
+        //check for middle seat
         int matches = 0;
 
         for(Seat seat : selectedSeats) {
@@ -189,10 +198,10 @@ public class Basket {
         if(matches >= 2){
             return true;
         }
-
+        //check for full block
         boolean minFree = false;
         boolean maxFree = false;
-        int min = 9999;
+        int min = selectedRow.getSeatCount();
         int max = 0;
         for(Seat seat : selectedSeats){
             int seatId = seat.getSeatNumber();
@@ -209,20 +218,19 @@ public class Basket {
         if(selectedRow.getSeatByNumber(max+1) != null && selectedRow.getSeatByNumber( max+1).getSeatStatus() == Seat.SeatStatus.FREE){
             maxFree = true;
         }
-        //true if only one
+        //allow removal if only one seat
         if(min == max){
             return false;
         }
-        //true when enclosed
+        //allow removal if both ends are free/blocked
         if(minFree == maxFree){
             return false;
         }
-
+        //forbid removal when there only is a seat at the other end
         if (minFree) {
             return min != selectedId;
-        } else {
-            return max != selectedId;
+        }else {
+        return max != selectedId;
         }
-
     }
 }

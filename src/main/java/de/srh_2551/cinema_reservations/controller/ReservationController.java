@@ -52,6 +52,12 @@ public class ReservationController {
 
     @FXML
     public void initialize() {
+        // Bind managed to visible so hidden views release their layout space (Fix automatic window size)
+        defaultView.managedProperty().bind(defaultView.visibleProperty());
+        seatScrollPane.managedProperty().bind(seatScrollPane.visibleProperty());
+        basketView.managedProperty().bind(basketView.visibleProperty());
+        switchBasketBtn.managedProperty().bind(switchBasketBtn.visibleProperty());
+
         showDefaultView();
         populateHallMenu();
         fixComboBoxRenderer();
