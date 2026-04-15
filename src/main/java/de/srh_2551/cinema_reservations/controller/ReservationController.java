@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import javafx.stage.Screen;
 import javafx.geometry.Rectangle2D;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ReservationController {
@@ -33,9 +34,11 @@ public class ReservationController {
     @FXML
     private Button switchBasketBtn;
     @FXML
-    private ListView<String> basketSeatList;
+    private ListView<Seat> basketSeatList;
     @FXML
     private Label totalPriceLabel;
+    @FXML
+    private ComboBox<String> discountComboBox;
 
 
     // ===================
@@ -52,6 +55,8 @@ public class ReservationController {
         showDefaultView();
         populateHallMenu();
         fixComboBoxRenderer();
+        setupDiscountMenu();
+        createBasketList();
     }
 
    private void populateHallMenu(){
@@ -91,6 +96,7 @@ public class ReservationController {
         hallComboBox.setValue(null);
         hallComboBox.getSelectionModel().clearSelection();
 
+        discountComboBox.setValue("Kein Rabatt");
         showDefaultView();
 
         resizeWindow();
@@ -112,6 +118,7 @@ public class ReservationController {
     @FXML
     private void handleConfirmOrderClick(){
         currentBasket.confirmOrder();
+        discountComboBox.setValue("Kein Rabatt");
 
         //Save to csv
         CsvManager.saveHall(currentBasket.getSelectedHall());
@@ -163,13 +170,13 @@ public class ReservationController {
     }
     private void refreshBasketList(){
         basketSeatList.getItems().clear();
-        for(Seat seat : currentBasket.getSelectedSeats()){
-            basketSeatList.getItems().add("Sitz: " + currentBasket.getRowIdentifier() + "-" + seat.getSeatNumber() + " Preis: " + seat.getSeatType().getPrice());
+        if(currentBasket != null){
+            basketSeatList.getItems().addAll(currentBasket.getSelectedSeats());
         }
     }
 
     private void updatePriceLabel(){
-       double price = currentBasket.getPrice();
+       BigDecimal price = currentBasket.getPrice();
        totalPriceLabel.setText("Gesamtpreis: " + String.format("%.2f", price) + "€");
     }
 
@@ -265,16 +272,109 @@ public class ReservationController {
         //Dynamic width
         if(!hall.getRows().isEmpty()){
             Row frontRow = hall.getRow(1);
-            int seatcount = frontRow.getSeats().size();
-            double screenwidth = (seatcount * 50) + ((seatcount - 1) * 5) + 100;
+            int seatCount = frontRow.getSeats().size();
+            double screenWidth = (seatCount * 50) + ((seatCount - 1) * 5) + 100;
 
-            screen.setPrefWidth(screenwidth);
-            screen.setMinWidth(screenwidth);
+            screen.setPrefWidth(screenWidth);
+            screen.setMinWidth(screenWidth);
         }
 
         screenContainer.getChildren().add(screen);
         return screenContainer;
     }
+
+    private void createBasketList(){
+        basketSeatList.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Seat seat, boolean empty) {
+                super.updateItem(seat, empty);
+
+                if (empty || seat == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    //item container
+                    HBox basketItemContainer = new HBox(15);
+                    basketItemContainer.setAlignment(Pos.CENTER_LEFT);
+                    basketItemContainer.getStyleClass().add("basketItemContainer");
+
+                    //seat identifier
+                    Label basketItem = new Label("Reihe " + currentBasket.getRowIdentifier() + " | Sitz " + seat.getSeatNumber());
+                    basketItem.getStyleClass().add("basketItem");
+
+                    //seat type
+                    Label typeLabel = new Label("Type: " + seat.getSeatType().name());
+                    typeLabel.getStyleClass().add("basketItem-type");
+
+                    //spacer
+                    Region spacer = new Region();
+                    HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                    //price
+                    Label priceLabel = new Label(String.format("%.2f €", seat.getSeatType().getPrice()));
+                    priceLabel.getStyleClass().add("basketItem-price");
+
+                    // remove button
+                    Button removeBtn = new Button();
+                    removeBtn.getStyleClass().add("basketItem-remove");
+
+                    if (currentBasket.removalNotAllowed(seat)) {
+                        removeBtn.setDisable(true);
+                    }
+
+                    removeBtn.setOnAction(event -> {
+                        try {
+                            currentBasket.removeSeat(seat);
+
+                            refreshBasketList();
+                            updatePriceLabel();
+                        } catch (IllegalStateException e) {
+                            showErrorPopup("Kann nicht entfernt werden", e.getMessage());
+                        }
+                    });
+
+                    basketItemContainer.getChildren().addAll(basketItem, typeLabel, spacer, priceLabel, removeBtn);
+                    setGraphic(basketItemContainer);
+                    setText(null);
+
+                }
+            }
+        });
+
+
+    }
+
+    private void setupDiscountMenu(){
+        discountComboBox.getItems().clear();
+        discountComboBox.getItems().addAll(
+                "Kein Rabatt",
+                "Student/Schüler (10%)",
+                "Senioren (15%)",
+                "Schwerbehindert (30%)"
+        );
+        discountComboBox.setValue("Kein Rabatt");
+
+        discountComboBox.setOnAction(event -> {
+            String selection = discountComboBox.getValue();
+
+            switch (selection) {
+                case "Kein Rabatt":
+                    currentBasket.setCurrentDiscount(Basket.Discounts.DEFAULT);
+                    break;
+                case "Student/Schüler (10%)":
+                    currentBasket.setCurrentDiscount(Basket.Discounts.STUDENT);
+                    break;
+                case "Senioren (15%)":
+                    currentBasket.setCurrentDiscount(Basket.Discounts.ELDERLY);
+                    break;
+                case "Schwerbehindert (30%)":
+                    currentBasket.setCurrentDiscount(Basket.Discounts.DISABLED);
+                    break;
+            }
+            updatePriceLabel();
+        });
+    }
+
 
     //Generating seats
     private Button createSeatButton(String rowIdentifier, Seat seat) {

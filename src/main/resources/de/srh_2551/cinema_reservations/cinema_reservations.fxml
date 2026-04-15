@@ -13,6 +13,7 @@
 <?import javafx.scene.text.Font?>
 
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.Region?>
 <BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.srh_2551.cinema_reservations.controller.ReservationController">
  <top>
      <HBox alignment="CENTER_LEFT" spacing="15.0"
@@ -55,17 +56,22 @@
                  </Label>
              </top>
              <bottom>
-                 <StackPane BorderPane.alignment="CENTER">
+                 <HBox alignment="CENTER_RIGHT" spacing="20.0" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
-                         <Insets bottom="20.0" left="50.0" right="50.0" top="15.0"/>
+                         <Insets bottom="20.0" left="20.0" right="20.0" top="15.0"/>
                      </BorderPane.margin>
-                     <Label fx:id="totalPriceLabel" text="Total Price: 0.00€" StackPane.alignment="CENTER">
+
+                     <ComboBox fx:id="discountComboBox" promptText="Rabatt wählen" prefWidth="170.0"/>
+
+                     <Label fx:id="totalPriceLabel" text="Total Price: 0.00€">
                          <font>
                              <Font name="System Bold" size="18.0"/>
                          </font>
                      </Label>
 
-                     <ButtonBar StackPane.alignment="CENTER_RIGHT">
+                     <Region HBox.hgrow="ALWAYS" />
+
+                     <ButtonBar>
                          <buttons>
                              <Button mnemonicParsing="false" onAction="#handleCancelBtnClick"
                                      text="Cancel"/>
@@ -74,8 +80,7 @@
                                      text="Confirm Order"/>
                          </buttons>
                      </ButtonBar>
-
-                 </StackPane>
+                 </HBox>
              </bottom>
              <center>
                  <ListView fx:id="basketSeatList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">

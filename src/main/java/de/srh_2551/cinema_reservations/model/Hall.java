@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Hall {
-    private String name;
+    private final String name;
     private final List<Row> rows;
 
     //constructor
@@ -44,13 +44,6 @@ public class Hall {
     public String getName() {
         return name;
     }
-    public void setName(String name) {
-        if(verifyName(name)){
-            this.name = name;
-        }else  {
-            throw new IllegalArgumentException("Invalid name!");
-        }
-    }
 
     public List<Row> getRows() {
         return java.util.Collections.unmodifiableList(rows);
@@ -80,14 +73,6 @@ public class Hall {
 
 
     //helper
-    public List<Seat> getSeatsByStatus(Seat.SeatStatus seatStatus) {
-        List<Seat> seats = new ArrayList<>();
-        for (Row row : this.rows) {
-            seats.addAll(row.getSeatsByStatus(seatStatus));
-        }
-        return java.util.Collections.unmodifiableList(seats);
-    }
-
     public Row getRow(int rowId) {
         for(Row row :  this.rows) {
             if(row.getRowId() == rowId) {
@@ -95,17 +80,5 @@ public class Hall {
             }
         }
         return null;
-    }
-
-    public int getSeatCount(){
-        int count = 0;
-        for(Row row : this.rows) {
-            count += row.getSeats().size();
-        }
-        return count;
-    }
-
-    public int getSeatCount(Seat.SeatStatus seatStatus){
-        return getSeatsByStatus(seatStatus).size();
     }
 }

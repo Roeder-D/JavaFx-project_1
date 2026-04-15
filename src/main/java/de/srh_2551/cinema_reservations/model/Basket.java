@@ -1,5 +1,7 @@
 package de.srh_2551.cinema_reservations.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -10,6 +12,23 @@ public class Basket {
     private final int basketId;
     private final List<Seat> selectedSeats;
     private final Hall selectedHall;
+    private Discounts currentDiscount = Discounts.DEFAULT;
+
+    public enum Discounts{
+        DEFAULT(0),
+        STUDENT(0.10),
+        ELDERLY(0.15),
+        DISABLED(0.30);
+
+        private final double discount;
+
+        Discounts(double discount){
+            this.discount = discount;
+        }
+        public double getDiscount() {
+            return discount;
+        }
+    }
 
     //constructor
     public Basket(Hall selectedHall) {
@@ -36,14 +55,22 @@ public class Basket {
         }
     }
 
-    public double getPrice() {
-        return selectedSeats.stream()
+    public BigDecimal getPrice() {
+        double price = selectedSeats.stream()
                 .mapToDouble(seat-> seat.getSeatType().getPrice())
                 .sum();
+
+        price *= (1-currentDiscount.getDiscount());
+
+        return BigDecimal.valueOf(price).setScale(2, RoundingMode.DOWN);
     }
 
     public Hall getSelectedHall() {
         return selectedHall;
+    }
+
+    public void setCurrentDiscount(Discounts newDiscount) {
+        this.currentDiscount = newDiscount;
     }
 
     public void addSeat(Seat seat){
@@ -67,26 +94,15 @@ public class Basket {
     }
 
     public void removeSeat(Seat seat){
-        int seatNmb = seat.getSeatNumber();
-        int matches = 0;
         //check for existence
         if(!selectedSeats.contains(seat)) {
             throw new IllegalStateException("Seat does not exist!");
         }
         //prevent center selection
         else{
-            for(Seat selectedSeat : selectedSeats) {
-                if(selectedSeat.getSeatNumber() == seatNmb + 1 || selectedSeat.getSeatNumber() == seatNmb - 1) {
-                    matches++;
-                }
-            }
-            if(matches >= 2){
-                throw new IllegalStateException("Seats must be adjacent!");
-
-            }
             //prevent new gaps
-            if(!removalAllowed(seat)) {
-                throw new IllegalStateException("Cannot leave a single empty seat unless enclosed!");
+            if(removalNotAllowed(seat)) {
+                throw new IllegalStateException("Cannot create a single seat gap");
             }
 
             selectedSeats.remove(seat);
@@ -112,11 +128,6 @@ public class Basket {
             seat.setSeatStatus(Seat.SeatStatus.FREE);
         }
         selectedSeats.clear();
-    }
-
-    public void cancelSeat(Seat seat){
-        seat.setSeatStatus(Seat.SeatStatus.FREE);
-        selectedSeats.remove(seat);
     }
 
     public boolean seatIsAdjacent(Seat selectedSeat){
@@ -165,9 +176,19 @@ public class Basket {
         }else return seatMinus2 != Seat.SeatStatus.FREE;
     }
 
-    private boolean removalAllowed(Seat selectedSeat){
+    public boolean removalNotAllowed(Seat selectedSeat){
         Row selectedRow = getSelectedHall().getRow(selectedSeat.getRowId());
         int selectedId = selectedSeat.getSeatNumber();
+        int matches = 0;
+
+        for(Seat seat : selectedSeats) {
+            if(seat.getSeatNumber() == selectedId + 1 || seat.getSeatNumber() == selectedId - 1) {
+                matches++;
+            }
+        }
+        if(matches >= 2){
+            return true;
+        }
 
         boolean minFree = false;
         boolean maxFree = false;
@@ -190,17 +211,17 @@ public class Basket {
         }
         //true if only one
         if(min == max){
-            return true;
+            return false;
         }
         //true when enclosed
         if(minFree == maxFree){
-            return true;
+            return false;
         }
 
         if (minFree) {
-            return min == selectedId;
+            return min != selectedId;
         } else {
-            return max == selectedId;
+            return max != selectedId;
         }
 
     }

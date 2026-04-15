@@ -1,113 +1,197 @@
 /* styles.css */
 
 /* legend */
-.legend-container {
-    -fx-padding: 0 0 20px 0; /* Space between legend and screen */
-}
+    .legend-container {
+        -fx-padding: 0 0 20px 0; /* Space between legend and screen */
+    }
 
-/* color swatch */
-.legend-colorBox {
-    -fx-pref-width: 14px;
-    -fx-pref-height: 14px;
-    -fx-min-width: 14px;
-    -fx-min-height: 14px;
-    -fx-background-radius: 3px;
+    /* color swatch */
+    .legend-colorBox {
+        -fx-pref-width: 14px;
+        -fx-pref-height: 14px;
+        -fx-min-width: 14px;
+        -fx-min-height: 14px;
+        -fx-background-radius: 3px;
 
-    -fx-border-color: rgba(0,0,0,0.2);
-    -fx-border-radius: 3px;
-    -fx-border-width: 1px;
-}
+        -fx-border-color: rgba(0,0,0,0.2);
+        -fx-border-radius: 3px;
+        -fx-border-width: 1px;
+    }
 
-.legend-label {
-    -fx-text-fill: #666666;
-    -fx-font-size: 13px;
-}
+    .legend-label {
+        -fx-text-fill: #666666;
+        -fx-font-size: 13px;
+    }
 
-/* Legend Colors */
-.legend-standard {
-    -fx-background-color: lightgreen;
-}
+    /* Legend Colors */
+    .legend-standard {
+        -fx-background-color: lightgreen;
+    }
 
-.legend-premium {
-    -fx-background-color: lightskyblue;
-}
+    .legend-premium {
+        -fx-background-color: lightskyblue;
+    }
 
-.legend-deluxe {
-    -fx-background-color: plum;
-}
+    .legend-deluxe {
+        -fx-background-color: plum;
+    }
 
 /* Cinema Screen Visual */
-.screenContainer {
-    -fx-padding: 0 0 40px 0
-}
+    .screenContainer {
+        -fx-padding: 0 0 40px 0
+    }
 
-.cinema-screen {
-    -fx-background-color: linear-gradient(to bottom, #ffffff, #e0e0e0);
-    -fx-text-fill: #555555;
-    -fx-font-weight: bold;
-    -fx-font-size: 16px;
-    -fx-padding: 10px 200px; /* Default width */
-    -fx-alignment: center;
-    -fx-background-radius: 8px;
-    -fx-border-color: #cccccc;
-    -fx-border-radius: 8px;
-    -fx-border-width: 1px;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 8);
-}
+    .cinema-screen {
+        -fx-background-color: linear-gradient(to bottom, #ffffff, #e0e0e0);
+        -fx-text-fill: #555555;
+        -fx-font-weight: bold;
+        -fx-font-size: 16px;
+        -fx-padding: 10px 200px; /* Default width */
+        -fx-alignment: center;
+        -fx-background-radius: 8px;
+        -fx-border-color: #cccccc;
+        -fx-border-radius: 8px;
+        -fx-border-width: 1px;
+        -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 8);
+    }
 
-.seat-button{
-    -fx-pref-width: 50px;
-    -fx-pref-height: 50px;
-    -fx-min-width: 50px;
-    -fx-min-height: 50px;
+/*Seats*/
+    .seat-button{
+        -fx-pref-width: 50px;
+        -fx-pref-height: 50px;
+        -fx-min-width: 50px;
+        -fx-min-height: 50px;
 
-    -fx-shape: "M 50 40 C 50 50, 0 50, 0 40 L 0 5 C 0 0, 10 0, 10 5 L 10 30 L 40 30 L 40 5 C 40 0, 50 0, 50 5 Z M 39 29 L 11 29 L 11 2 C 11 -4, 39 -4, 39 2 Z";
+        -fx-shape: "M 50 40 C 50 50, 0 50, 0 40 L 0 5 C 0 0, 10 0, 10 5 L 10 30 L 40 30 L 40 5 C 40 0, 50 0, 50 5 Z M 39 29 L 11 29 L 11 2 C 11 -4, 39 -4, 39 2 Z";
 
-    -fx-border-color: darkgray;
-    -fx-border-width: 1px;
-    -fx-background-insets: 0;
-}
+        -fx-border-color: darkgray;
+        -fx-border-width: 1px;
+        -fx-background-insets: 0;
+    }
 
-/*Status indicators*/
+    /*Status indicators*/
 
-.seat-booked{
-    -fx-background-color: lightgray;
-    -fx-opacity: 1;
-}
+    .seat-booked{
+        -fx-background-color: lightgray;
+        -fx-opacity: 1;
+    }
 
-.seat-selected{
-    -fx-background-color: yellow;
-    -fx-opacity: 1;
-}
+    .seat-selected{
+        -fx-background-color: yellow;
+        -fx-opacity: 1;
+    }
 
-.seat-error{
-    -fx-background-color: #DDACAC;
-    -fx-opacity: 1;
-}
+    .seat-error{
+        -fx-background-color: #DDACAC;
+        -fx-opacity: 1;
+    }
 
-/*Seat type colors*/
+    /*Seat type colors*/
 
-/*Standard*/
-.seat-free {
-    -fx-background-color: lightgreen;
-    -fx-opacity: 1;
-}
-.seat-free:hover {
-    -fx-background-color: #2E8B57, #B4F8B4; /* Slightly brighter fill on hover */
-}
+    /*Standard*/
+    .seat-free {
+        -fx-background-color: lightgreen;
+        -fx-opacity: 1;
+    }
+    .seat-free:hover {
+        -fx-background-color: #2E8B57, #B4F8B4; /* Slightly brighter fill on hover */
+    }
 
-/*Premium*/
-.seat-free.type-premium {
-    -fx-background-color: lightskyblue;
-}
-.seat-free.type-premium:hover {
-    -fx-background-color: #4682B4, #B0E2FF;
-}
+    /*Premium*/
+    .seat-free.type-premium {
+        -fx-background-color: lightskyblue;
+    }
+    .seat-free.type-premium:hover {
+        -fx-background-color: #4682B4, #B0E2FF;
+    }
 
-/*Deluxe*/
-.seat-free.type-deluxe {
-    -fx-background-color: plum;
-}
-.seat-free.type-deluxe:hover {
-    -fx-background-color: #8B668B, #E6A8D7;
-}
+    /*Deluxe*/
+    .seat-free.type-deluxe {
+        -fx-background-color: plum;
+    }
+    .seat-free.type-deluxe:hover {
+        -fx-background-color: #8B668B, #E6A8D7;
+    }
+
+/*Basket*/
+
+    /*Basket list*/
+
+    #basketSeatList {
+        -fx-background-color: white;
+        -fx-background-insets: 0;
+        -fx-padding: 5px;
+    }
+
+    #basketSeatList:focused {
+        -fx-background-color: white;
+        -fx-background-insets: 0;
+    }
+
+    #basketSeatList .list-cell {
+        -fx-background-color: white;
+    }
+
+    #basketSeatList .list-cell:filled:selected {
+        -fx-background-color: white;
+    }
+
+    /* Custom Cart Item Card */
+    .basketItemContainer {
+        -fx-background-color: white;
+        -fx-background-radius: 8px;
+        -fx-padding: 10px 15px 10px 15px;
+        -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 5, 0, 0, 2);
+        -fx-border-color: #e0e0e0;
+        -fx-border-radius: 8px;
+        -fx-border-width: 1px;
+    }
+
+    /* Badge (Reihe A | Sitz 5) */
+    .basketItem {
+        -fx-background-color: #333333;
+        -fx-text-fill: white;
+        -fx-font-weight: bold;
+        -fx-padding: 6px 12px;
+        -fx-background-radius: 4px;
+        -fx-font-size: 14px;
+    }
+
+    /* Seat Type */
+    .basketItem-type {
+        -fx-text-fill: #666666;
+        -fx-font-size: 14px;
+        -fx-font-weight: bold;
+    }
+
+    /* Price */
+    .basketItem-price {
+        -fx-text-fill: #2E8B57;
+        -fx-font-weight: bold;
+        -fx-font-size: 16px;
+    }
+
+    /*cancel seat button*/
+    .basketItem-remove {
+        -fx-background-color: #ff4c4c;
+
+        /* This draws a perfectly filled "X" polygon! */
+        -fx-shape: "M 2 0 L 5 3 L 8 0 L 10 2 L 7 5 L 10 8 L 8 10 L 5 7 L 2 10 L 0 8 L 3 5 L 0 2 Z";
+
+        /* Make the button a nice, compact square */
+        -fx-min-width: 20px;
+        -fx-pref-width: 20px;
+        -fx-min-height: 20px;
+        -fx-pref-height: 20px;
+
+        -fx-cursor: hand;
+    }
+
+    .basketItem-remove:hover {
+        -fx-background-color: #ff1a1a;
+    }
+
+    .basketItem-remove:disabled {
+        -fx-background-color: #cccccc;
+        -fx-cursor: default;
+    }
