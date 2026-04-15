@@ -1,5 +1,60 @@
 /* styles.css */
 
+/* legend */
+.legend-container {
+    -fx-padding: 0 0 20px 0; /* Space between legend and screen */
+}
+
+/* color swatch */
+.legend-colorBox {
+    -fx-pref-width: 14px;
+    -fx-pref-height: 14px;
+    -fx-min-width: 14px;
+    -fx-min-height: 14px;
+    -fx-background-radius: 3px;
+
+    -fx-border-color: rgba(0,0,0,0.2);
+    -fx-border-radius: 3px;
+    -fx-border-width: 1px;
+}
+
+.legend-label {
+    -fx-text-fill: #666666;
+    -fx-font-size: 13px;
+}
+
+/* Legend Colors */
+.legend-standard {
+    -fx-background-color: lightgreen;
+}
+
+.legend-premium {
+    -fx-background-color: lightskyblue;
+}
+
+.legend-deluxe {
+    -fx-background-color: plum;
+}
+
+/* Cinema Screen Visual */
+.screenContainer {
+    -fx-padding: 0 0 40px 0
+}
+
+.cinema-screen {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #e0e0e0);
+    -fx-text-fill: #555555;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 10px 200px; /* Default width */
+    -fx-alignment: center;
+    -fx-background-radius: 8px;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 8);
+}
+
 .seat-button{
     -fx-pref-width: 50px;
     -fx-pref-height: 50px;

@@ -8,9 +8,7 @@ import de.srh_2551.cinema_reservations.model.Seat;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.Screen;
 import javafx.geometry.Rectangle2D;
@@ -191,6 +189,12 @@ public class ReservationController {
     private void createSeatPlan(Hall hall) {
         seatContainer.getChildren().clear();
 
+        //Add Legend
+        seatContainer.getChildren().add(createLegend());
+
+        //Add Screen
+        seatContainer.getChildren().add(createScreen(hall));
+
         int rowCount = 0;
         for(Row row : hall.getRows()){
             String rowName = row.getRowIdentifier();
@@ -222,6 +226,54 @@ public class ReservationController {
         showSeatGrid();
 
         resizeWindow();
+    }
+
+    private HBox createLegend(){
+        HBox legend = new HBox(20);
+        legend.setAlignment(Pos.CENTER);
+        legend.getStyleClass().add("legend");
+        legend.getChildren().addAll(
+                createLegendItem("Standard", "legend-standard"),
+                createLegendItem("Premium", "legend-premium"),
+                createLegendItem("Deluxe", "legend-deluxe")
+        );
+        return legend;
+    }
+
+    private HBox createLegendItem(String labelText, String cssIdentifier){
+        HBox legendItem = new HBox(5);
+        legendItem.setAlignment(Pos.CENTER_LEFT);
+
+        Region colorBox = new Region();
+        colorBox.getStyleClass().addAll("legend-colorBox", cssIdentifier);
+
+        Label label = new Label(labelText);
+        label.getStyleClass().add("legend-label");
+
+        legendItem.getChildren().addAll(colorBox, label);
+        return legendItem;
+    }
+
+    private StackPane createScreen(Hall hall){
+        StackPane screenContainer = new StackPane();
+        screenContainer.getStyleClass().add("screenContainer");
+
+        Label screen = new Label("LEINWAND");
+        screen.getStyleClass().add("cinema-screen");
+        screen.setAlignment(Pos.CENTER);
+
+        //Dynamic width
+        if(!hall.getRows().isEmpty()){
+            Row frontRow = hall.getRow(1);
+            int seatcount = frontRow.getSeats().size();
+            double screenwidth = (seatcount * 50) + ((seatcount - 1) * 5) + 100;
+
+            screen.setPrefWidth(screenwidth);
+            screen.setMinWidth(screenwidth);
+        }
+
+        screenContainer.getChildren().add(screen);
+        return screenContainer;
     }
 
     //Generating seats
@@ -272,6 +324,7 @@ public class ReservationController {
                 break;
         }
     }
+
     //manually filling the comboBox to fix bug with default renderer
     private void fixComboBoxRenderer(){
         hallComboBox.setButtonCell(new javafx.scene.control.ListCell<>() {
