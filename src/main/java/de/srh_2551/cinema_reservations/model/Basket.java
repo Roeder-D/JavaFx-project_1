@@ -121,8 +121,6 @@ public class Basket {
         return true;
     }
 
-    //helper
-
     public void cancelOrder(){
         for(Seat seat : selectedSeats){
             seat.setSeatStatus(Seat.SeatStatus.FREE);
