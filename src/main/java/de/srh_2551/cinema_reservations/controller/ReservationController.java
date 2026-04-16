@@ -282,7 +282,7 @@ public class ReservationController {
 
         //Dynamic width
         if(!hall.getRows().isEmpty()){
-            Row frontRow = hall.getRow(1);
+            Row frontRow = hall.getRows().getFirst();
             int seatCount = frontRow.getSeats().size();
             double screenWidth = (seatCount * 50) + ((seatCount - 1) * 5) + 100;
 

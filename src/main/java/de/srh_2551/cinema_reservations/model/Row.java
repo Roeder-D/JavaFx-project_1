@@ -1,5 +1,6 @@
 package de.srh_2551.cinema_reservations.model;
 
+
 import java.util.ArrayList;
 import java.util.List;
 

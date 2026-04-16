@@ -55,6 +55,9 @@ public class Seat {
         return seatType;
     }
     public void setSeatType(SeatType seatType) {
+        if(seatType == null){
+            throw new IllegalArgumentException("SeatType cannot be null");
+        }
         this.seatType = seatType;
     }
 
@@ -62,6 +65,9 @@ public class Seat {
         return seatStatus;
     }
     public void setSeatStatus(SeatStatus seatStatus) {
+        if(seatStatus == null){
+            throw new IllegalArgumentException("SeatStatus cannot be null");
+        }
         this.seatStatus = seatStatus;
     }
 

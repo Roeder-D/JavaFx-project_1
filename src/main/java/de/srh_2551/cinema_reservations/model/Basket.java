@@ -145,48 +145,38 @@ public class Basket {
         return true;
     }
 
-    public boolean createsIllegalGap(Seat selectedSeat){
-        Row selectedRow = getSelectedHall().getRow(selectedSeat.getRowId());
-        int seatNmb = selectedSeat.getSeatNumber();
+    public boolean createsIllegalGap(Seat proposedSeat) {
+        List<Seat> simulated = new ArrayList<>(selectedSeats);
+        simulated.add(proposedSeat);
 
-        Seat.SeatStatus seatMinus1 = null;
-        Seat.SeatStatus seatPlus1 = null;
-        Seat.SeatStatus seatMinus2  = null;
-        Seat.SeatStatus seatPlus2 = null;
+        //Find boundaries
+        int min = simulated.stream().mapToInt(Seat::getSeatNumber).min().getAsInt();
+        int max = simulated.stream().mapToInt(Seat::getSeatNumber).max().getAsInt();
+        Row row = getSelectedHall().getRow(proposedSeat.getRowId());
 
-        if(selectedRow.getSeatByNumber(seatNmb - 1) != null){
-            seatMinus1 = selectedRow.getSeatByNumber(seatNmb - 1).getSeatStatus();
-        }
-        if(selectedRow.getSeatByNumber(seatNmb + 1) != null){
-            seatPlus1 = selectedRow.getSeatByNumber(seatNmb + 1).getSeatStatus();
-        }
-        if(selectedRow.getSeatByNumber(seatNmb - 2) != null){
-            seatMinus2 = selectedRow.getSeatByNumber(seatNmb - 2).getSeatStatus();
-        }
-        if(selectedRow.getSeatByNumber(seatNmb + 2) != null){
-            seatPlus2 = selectedRow.getSeatByNumber(seatNmb + 2).getSeatStatus();
+        //check for gap
+        boolean leftGap = isFree(row, min - 1) && !isFree(row, min - 2);
+        boolean rightGap = isFree(row, max + 1) && !isFree(row, max + 2);
+
+        //Override checks when one end is enclosed
+        if (leftGap || rightGap) {
+            boolean enclosedLeft = !isFree(row, min - 1);
+            boolean enclosedRight = !isFree(row, max + 1);
+
+            return !(enclosedLeft || enclosedRight);
         }
 
-        boolean createsLeftGap = false;
-        boolean createsRightGap = false;
-
-        if(seatMinus1 == Seat.SeatStatus.FREE){
-            if(seatMinus2 !=  Seat.SeatStatus.FREE){
-                createsLeftGap = true;
-            }
-        }
-        if(seatPlus1 == Seat.SeatStatus.FREE){
-            if(seatPlus2 !=  Seat.SeatStatus.FREE){
-                createsRightGap = true;
-            }
-        }
-        //block if creates a single seat gap
-        return createsLeftGap || createsRightGap;
+        return false;
     }
 
     public boolean removalNotAllowed(Seat selectedSeat){
+        if(selectedSeats.size() <= 1) {
+            return false;
+        }
+
         Row selectedRow = getSelectedHall().getRow(selectedSeat.getRowId());
         int selectedId = selectedSeat.getSeatNumber();
+
         //check for middle seat
         int matches = 0;
 
@@ -218,10 +208,6 @@ public class Basket {
         if(selectedRow.getSeatByNumber(max+1) != null && selectedRow.getSeatByNumber( max+1).getSeatStatus() == Seat.SeatStatus.FREE){
             maxFree = true;
         }
-        //allow removal if only one seat
-        if(min == max){
-            return false;
-        }
         //allow removal if both ends are free/blocked
         if(minFree == maxFree){
             return false;
@@ -232,5 +218,11 @@ public class Basket {
         }else {
         return max != selectedId;
         }
+    }
+
+    private boolean isFree(Row row, int seatNumber) {
+        Seat seat = row.getSeatByNumber(seatNumber);
+        // If the seat is null (a wall/aisle), it is NOT free.
+        return seat != null && seat.getSeatStatus() == Seat.SeatStatus.FREE;
     }
 }
