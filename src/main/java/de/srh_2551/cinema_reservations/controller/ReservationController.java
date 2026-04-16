@@ -167,12 +167,8 @@ public class ReservationController {
         switchBasketBtn.setVisible(true);
         switchBasketBtn.setText("Saal");
         switchBasketBtn.setOnAction(event -> showSeatGrid());
-
-        //generate list & price
         refreshBasketList();
-        updatePriceLabel();
 
-        //TODO: Make this shine and add cancelSeat() and discount options
     }
     private void refreshBasketList(){
         basketSeatList.getItems().clear();
