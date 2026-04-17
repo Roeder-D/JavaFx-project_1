@@ -1,5 +1,7 @@
 package de.srh_2551.cinema_reservations.model;
 
+import de.srh_2551.cinema_reservations.util.LanguageManager;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -80,12 +82,12 @@ public class Basket {
         }
         //check for adjacent
         if(!seatIsAdjacent(seat)) {
-                throw new IllegalStateException("Seats must be adjacent!");
+                throw new IllegalStateException(LanguageManager.getString("error.seatNotAdjacent"));
             }
 
         //check for new gaps
         if(createsIllegalGap(seat)){
-        throw new IllegalStateException("Seat can't create a single gap");
+        throw new IllegalStateException(LanguageManager.getString("error.singleGap"));
         }
 
         //add seat
@@ -102,7 +104,7 @@ public class Basket {
         else{
             //prevent new gaps
             if(removalNotAllowed(seat)) {
-                throw new IllegalStateException("Cannot create a single seat gap");
+                throw new IllegalStateException(LanguageManager.getString("error.single_gap"));
             }
 
             selectedSeats.remove(seat);

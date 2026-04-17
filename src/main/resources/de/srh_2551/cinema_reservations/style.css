@@ -35,6 +35,11 @@
     .legend-deluxe {
         -fx-background-color: plum;
     }
+
+    .legend-booked {
+        -fx-background-color: lightgray;
+    }
+
     .legend-out_of_order {
         -fx-background-color: #EE9B9B;
     }

@@ -12,13 +12,14 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class BasketItemCell extends ListCell<Seat> {
-    private final Basket currentBasket;
+    private final Supplier<Basket> supplierBasket;
     private final Consumer<Seat> onRemoveAction; // Allows the Controller to tell us what to do on click
 
-    public BasketItemCell(Basket currentBasket, Consumer<Seat> onRemoveAction) {
-        this.currentBasket = currentBasket;
+    public BasketItemCell(Supplier<Basket> supplierBasket, Consumer<Seat> onRemoveAction) {
+        this.supplierBasket = supplierBasket;
         this.onRemoveAction = onRemoveAction;
     }
 
@@ -30,6 +31,7 @@ public class BasketItemCell extends ListCell<Seat> {
             setText(null);
             setGraphic(null);
         }else{
+            Basket currentBasket = supplierBasket.get();
             //item container
             HBox container = new HBox(15);
             container.setAlignment(Pos.CENTER_LEFT);
