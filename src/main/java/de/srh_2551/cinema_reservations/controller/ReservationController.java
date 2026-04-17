@@ -4,17 +4,14 @@ import de.srh_2551.cinema_reservations.util.LanguageManager;
 import de.srh_2551.cinema_reservations.data.CsvManager;
 import de.srh_2551.cinema_reservations.model.Basket;
 import de.srh_2551.cinema_reservations.model.Hall;
-import de.srh_2551.cinema_reservations.model.Row;
 import de.srh_2551.cinema_reservations.model.Seat;
+import de.srh_2551.cinema_reservations.util.SeatUIBuilder;
 import de.srh_2551.cinema_reservations.util.UIUtils;
 import de.srh_2551.cinema_reservations.view.BasketItemCell;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.stage.Screen;
-import javafx.geometry.Rectangle2D;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -127,15 +124,15 @@ public class ReservationController {
 
         UIUtils.resizeAndCenterWindow((Stage) defaultView.getScene().getWindow());
     }
-    private void handleSeatClick(Button seatBtn, Seat seat) {
+    private void handleSeatClick(Seat seat) {
         try {
             if (seat.getSeatStatus() == Seat.SeatStatus.SELECTED) {
                 currentBasket.removeSeat(seat);
             } else if (seat.getSeatStatus() == Seat.SeatStatus.FREE) {
                 currentBasket.addSeat(seat);
             }
-            applySeatStyle(seatBtn, seat);
 
+            SeatUIBuilder.applySeatStyle(seatButtonMap.get(seat), seat);
         } catch (IllegalStateException e) {
             UIUtils.showErrorPopup(LanguageManager.getString("error.invalidSelection"), e.getMessage());
         }
@@ -210,7 +207,7 @@ public class ReservationController {
                 Seat seat = entry.getKey();
                 Button seatBtn = entry.getValue();
 
-                applySeatStyle(seatBtn, seat);
+                SeatUIBuilder.applySeatStyle(seatBtn, seat);
             }
             showSeatGrid();
         }
@@ -292,99 +289,12 @@ public class ReservationController {
 
     //build seat plan UI
     private void createSeatPlan(Hall hall) {
-        seatContainer.getChildren().clear();
-        seatButtonMap.clear();
-
-        //Add Legend
-        seatContainer.getChildren().add(createLegend(hall));
-
-        //Add Screen
-        seatContainer.getChildren().add(createScreen(hall));
-
-        int rowCount = 0;
-        for(Row row : hall.getRows()){
-            String rowName = row.getRowIdentifier();
-
-            //create gap between two rows
-            if(row.getGapInFront()){
-                HBox gapBox = new HBox();
-                gapBox.setPrefHeight(10);
-                seatContainer.getChildren().add(gapBox);
-            }
-
-            HBox rowBox = new HBox(5);//5 pixel gap between seats
-            rowBox.setAlignment(Pos.CENTER);
-
-            //stagger rows
-            if(rowCount % 2 == 0){
-                rowBox.setTranslateX(25);
-            }
-
-            for(Seat seat : row.getSeats()){
-                Button seatBtn = createSeatButton(rowName, seat);
-                seatButtonMap.put(seat, seatBtn);
-                rowBox.getChildren().add(seatBtn);
-            }
-            rowCount ++;
-            seatContainer.getChildren().add(rowBox);
-        }
+        //moved UI creation
+        SeatUIBuilder.buildSeatGrid(hall, seatContainer, seatButtonMap, this::handleSeatClick);
 
         //Switch view
         showSeatGrid();
         UIUtils.resizeAndCenterWindow((Stage) defaultView.getScene().getWindow());
-    }
-
-    private HBox createLegend(Hall currentHall){
-        HBox legend = new HBox(20);
-        legend.setAlignment(Pos.CENTER);
-        legend.getStyleClass().add("legend");
-
-        legend.getChildren().addAll(
-                createLegendItem(LanguageManager.getString("legend.standard"), "legend-standard"),
-                createLegendItem(LanguageManager.getString("legend.premium"), "legend-premium"),
-                createLegendItem(LanguageManager.getString("legend.deluxe"), "legend-deluxe")
-        );
-        if(currentHall.containsSeatStatus(Seat.SeatStatus.OUT_OF_ORDER)){
-            legend.getChildren().add(createLegendItem(LanguageManager.getString("legend.out_of_order"), "legend-out_of_order"));
-        }
-
-        return legend;
-    }
-
-    private HBox createLegendItem(String labelText, String cssIdentifier){
-        HBox legendItem = new HBox(5);
-        legendItem.setAlignment(Pos.CENTER_LEFT);
-
-        Region colorBox = new Region();
-        colorBox.getStyleClass().addAll("legend-colorBox", cssIdentifier);
-
-        Label label = new Label(labelText);
-        label.getStyleClass().add("legend-label");
-
-        legendItem.getChildren().addAll(colorBox, label);
-        return legendItem;
-    }
-
-    private StackPane createScreen(Hall hall){
-        StackPane screenContainer = new StackPane();
-        screenContainer.getStyleClass().add("screenContainer");
-
-        Label screen = new Label(LanguageManager.getString("screen.label"));
-        screen.getStyleClass().add("cinema-screen");
-        screen.setAlignment(Pos.CENTER);
-
-        //Dynamic width
-        if(!hall.getRows().isEmpty()){
-            Row frontRow = hall.getRows().getFirst();
-            int seatCount = frontRow.getSeats().size();
-            double screenWidth = (seatCount * 50) + ((seatCount - 1) * 5) + 100;
-
-            screen.setPrefWidth(screenWidth);
-            screen.setMinWidth(screenWidth);
-        }
-
-        screenContainer.getChildren().add(screen);
-        return screenContainer;
     }
 
     private void createBasketList() {
@@ -400,55 +310,6 @@ public class ReservationController {
                 UIUtils.showErrorPopup(LanguageManager.getString("error.cannotRemove"), e.getMessage());
             }
         }));
-    }
-
-    //Generating seats
-    private Button createSeatButton(String rowIdentifier, Seat seat) {
-        Button seatBtn = new Button(rowIdentifier + "-" + seat.getSeatNumber());
-        seatBtn.setPrefSize(50, 50);
-
-        applySeatStyle(seatBtn, seat);
-
-        seatBtn.setOnAction(ignored -> handleSeatClick(seatBtn, seat));
-
-        return seatBtn;
-    }
-
-    private void applySeatStyle(Button seatBtn, Seat seat){
-        seatBtn.getStyleClass().setAll("button", "seat-button");
-
-        switch(seat.getSeatStatus()) {
-            case FREE:
-                seatBtn.getStyleClass().add("seat-free");
-                seatBtn.setDisable(false);
-                break;
-            case SELECTED:
-                seatBtn.getStyleClass().add("seat-selected");
-                seatBtn.setDisable(false);
-                break;
-            case RESERVED, BOOKED:
-                seatBtn.getStyleClass().add("seat-booked");
-                seatBtn.setDisable(true);
-                break;
-            default:
-                seatBtn.getStyleClass().add("seat-error");
-                seatBtn.setDisable(true);
-                break;
-        }
-
-        switch(seat.getSeatType()){
-            case STANDARD:
-                seatBtn.getStyleClass().add("type-standard");
-                break;
-            case PREMIUM:
-                seatBtn.getStyleClass().add("type-premium");
-                break;
-            case DELUXE:
-                seatBtn.getStyleClass().add("type-deluxe");
-                break;
-            default:
-                break;
-        }
     }
 
     //manually filling the comboBox to fix bug with default renderer
