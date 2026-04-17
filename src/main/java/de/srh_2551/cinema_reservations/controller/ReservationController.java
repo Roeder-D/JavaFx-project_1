@@ -1,10 +1,13 @@
 package de.srh_2551.cinema_reservations.controller;
 
+import de.srh_2551.cinema_reservations.util.LanguageManager;
 import de.srh_2551.cinema_reservations.data.CsvManager;
 import de.srh_2551.cinema_reservations.model.Basket;
 import de.srh_2551.cinema_reservations.model.Hall;
 import de.srh_2551.cinema_reservations.model.Row;
 import de.srh_2551.cinema_reservations.model.Seat;
+import de.srh_2551.cinema_reservations.util.UIUtils;
+import de.srh_2551.cinema_reservations.view.BasketItemCell;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -14,11 +17,10 @@ import javafx.stage.Screen;
 import javafx.geometry.Rectangle2D;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ReservationController {
+
 
     // ===================
     //FXML VARIABLES
@@ -30,7 +32,7 @@ public class ReservationController {
     @FXML
     private ScrollPane seatScrollPane;
     @FXML
-    private ComboBox<String> hallComboBox;
+    private ComboBox<String> selectHallComboBox;
     @FXML
     private BorderPane basketView;
     @FXML
@@ -40,14 +42,26 @@ public class ReservationController {
     @FXML
     private Label totalPriceLabel;
     @FXML
-    private ComboBox<String> discountComboBox;
-
+    private MenuButton discountMenuBtn;
+    @FXML
+    public Label hallNameLabel;
+    @FXML
+    public ComboBox<String> languageComboBox;
+    @FXML
+    public Button confirmBtn;
+    @FXML
+    public Button cancelBtn;
+    @FXML
+    public Label defaultMessageLabel;
+    @FXML
+    public Label basketTitleLabel;
 
     // ===================
     //Data
     // ===================
     private Basket currentBasket;
     private final Map<Seat, Button> seatButtonMap = new HashMap<>();
+    private Basket.Discounts activeDiscount = Basket.Discounts.DEFAULT;
 
     // ===================
     //Initialisation
@@ -60,12 +74,14 @@ public class ReservationController {
         seatScrollPane.managedProperty().bind(seatScrollPane.visibleProperty());
         basketView.managedProperty().bind(basketView.visibleProperty());
         switchBasketBtn.managedProperty().bind(switchBasketBtn.visibleProperty());
+        hallNameLabel.managedProperty().bind(hallNameLabel.visibleProperty());
+        selectHallComboBox.managedProperty().bind(selectHallComboBox.visibleProperty());
 
         showDefaultView();
         populateHallMenu();
         fixComboBoxRenderer();
-        setupDiscountMenu();
         createBasketList();
+        setupLanguageMenu();
     }
 
    private void populateHallMenu(){
@@ -73,17 +89,17 @@ public class ReservationController {
        List<String> hallNames = CsvManager.getAllHallNames();
 
        //remove existing entries
-       hallComboBox.getItems().clear();
-       hallComboBox.getItems().addAll(hallNames);
+       selectHallComboBox.getItems().clear();
+       selectHallComboBox.getItems().addAll(hallNames);
 
-       hallComboBox.setOnAction(ignored -> {
-           String selectedHall = hallComboBox.getValue();
+       selectHallComboBox.setOnAction(ignored -> {
+           String selectedHall = selectHallComboBox.getValue();
 
            if (selectedHall != null) {
                Hall loadedHall = CsvManager.loadHall(selectedHall);
-
-               //Load hall
                currentBasket = new Basket(loadedHall);
+
+               hallNameLabel.setText(loadedHall.getName());
 
                createSeatPlan(loadedHall);
            }
@@ -102,13 +118,14 @@ public class ReservationController {
         //destroy basket
         currentBasket = null;
 
-        hallComboBox.setValue(null);
-        hallComboBox.getSelectionModel().clearSelection();
+        selectHallComboBox.setValue(null);
+        selectHallComboBox.getSelectionModel().clearSelection();
 
-        discountComboBox.setValue("Kein Rabatt");
+        activeDiscount = Basket.Discounts.DEFAULT;
+        discountMenuBtn.setText(LanguageManager.getString("discount.DEFAULT"));
         showDefaultView();
 
-        resizeWindow();
+        UIUtils.resizeAndCenterWindow((Stage) defaultView.getScene().getWindow());
     }
     private void handleSeatClick(Button seatBtn, Seat seat) {
         try {
@@ -120,14 +137,15 @@ public class ReservationController {
             applySeatStyle(seatBtn, seat);
 
         } catch (IllegalStateException e) {
-            showErrorPopup("Ungültige Auswahl", e.getMessage());
+            UIUtils.showErrorPopup(LanguageManager.getString("error.invalidSelection"), e.getMessage());
         }
     }
 
     @FXML
     private void handleConfirmOrderClick(){
         currentBasket.confirmOrder();
-        discountComboBox.setValue("Kein Rabatt");
+        activeDiscount = Basket.Discounts.DEFAULT;
+        discountMenuBtn.setText(LanguageManager.getString("discount.DEFAULT"));
 
         //Save to csv
         CsvManager.saveHall(currentBasket.getSelectedHall());
@@ -135,7 +153,7 @@ public class ReservationController {
         //Return to start page
         showDefaultView();
 
-        resizeWindow();
+        UIUtils.resizeAndCenterWindow((Stage) defaultView.getScene().getWindow());
     }
 
     // ===================
@@ -145,6 +163,9 @@ public class ReservationController {
         defaultView.setVisible(true);
         seatScrollPane.setVisible(false);
         basketView.setVisible(false);
+
+        selectHallComboBox.setVisible(true);
+        hallNameLabel.setVisible(false);
 
         switchBasketBtn.setVisible(false);
 
@@ -157,8 +178,11 @@ public class ReservationController {
         seatScrollPane.setVisible(true);
         basketView.setVisible(false);
 
+        selectHallComboBox.setVisible(true);
+        hallNameLabel.setVisible(false);
+
         switchBasketBtn.setVisible(true);
-        switchBasketBtn.setText("Warenkorb");
+        switchBasketBtn.setText(LanguageManager.getString("switchBasket.btn.toBasket"));
         switchBasketBtn.setOnAction(ignored -> showBasketView());
     }
 
@@ -167,14 +191,17 @@ public class ReservationController {
         seatScrollPane.setVisible(false);
         basketView.setVisible(true);
 
+        selectHallComboBox.setVisible(false);
+        hallNameLabel.setVisible(true);
+
         switchBasketBtn.setVisible(true);
-        switchBasketBtn.setText("Saal");
-        switchBasketBtn.setOnAction(ignored -> refreshSeatGrid());
-        refreshBasketList();
+        switchBasketBtn.setText(LanguageManager.getString("switchBasket.btn.toHall"));
+        switchBasketBtn.setOnAction(ignored -> updateSeatGrid());
+        updateBasketList();
         updatePriceLabel();
     }
 
-    private void refreshSeatGrid(){
+    private void updateSeatGrid(){
         if (seatButtonMap.isEmpty()) {
             createSeatPlan(currentBasket.getSelectedHall());
         } else {
@@ -189,7 +216,7 @@ public class ReservationController {
         }
     }
 
-    private void refreshBasketList(){
+    private void updateBasketList(){
         basketSeatList.getItems().clear();
         if(currentBasket != null){
             basketSeatList.getItems().addAll(currentBasket.getSelectedSeats());
@@ -197,20 +224,70 @@ public class ReservationController {
     }
 
     private void updatePriceLabel(){
-       BigDecimal price = currentBasket.getPrice();
-       totalPriceLabel.setText("Gesamtpreis: " + String.format("%.2f", price) + "€");
+        if(currentBasket != null) {
+            BigDecimal price = currentBasket.getPrice();
+            totalPriceLabel.setText(LanguageManager.getString("price.total") + " " + String.format("%.2f", price) + "€");
+        }
     }
 
     // ===================
     //UI builders & logic
     // ===================
 
-    private void showErrorPopup(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void updateLanguage(){
+        discountMenuBtn.setText(LanguageManager.getString("discount." + activeDiscount.name()));
+
+        //create discount menu items
+        if (discountMenuBtn.getItems().isEmpty()) {
+            for (Basket.Discounts discount : Basket.Discounts.values()) {
+                MenuItem item = new MenuItem();
+                item.setUserData(discount); //attaches enum to the button
+
+                item.setOnAction(ignored -> {
+                    activeDiscount = discount;
+                    discountMenuBtn.setText(item.getText());
+
+                    if (currentBasket != null) {
+                        currentBasket.setCurrentDiscount(discount);
+                        updatePriceLabel();
+                    }
+                });
+                discountMenuBtn.getItems().add(item);
+            }
+        }
+        //update menu items
+        for (MenuItem item : discountMenuBtn.getItems()) {
+            Basket.Discounts discount = (Basket.Discounts) item.getUserData(); //retrieves the attached Enum
+            item.setText(LanguageManager.getString("discount." + discount.name()));
+        }
+
+        selectHallComboBox.setPromptText(LanguageManager.getString("selectHall.prompt"));
+        defaultMessageLabel.setText(LanguageManager.getString("default.message"));
+        basketTitleLabel.setText(LanguageManager.getString("basket.title"));
+        cancelBtn.setText(LanguageManager.getString("btn.cancel"));
+        confirmBtn.setText(LanguageManager.getString("btn.confirm"));
+
+        //switch dynamic label
+        if(basketView.isVisible()){
+            switchBasketBtn.setText(LanguageManager.getString("switchBasket.btn.toHall"));
+        } else if (seatScrollPane.isVisible()) {
+            seatButtonMap.clear();
+            switchBasketBtn.setText(LanguageManager.getString("switchBasket.btn.toBasket"));
+        }
+        if(defaultView.getScene() != null) {
+            Stage stage = (Stage) defaultView.getScene().getWindow();
+            stage.setTitle(LanguageManager.getString("window.title"));
+        }
+
+        updatePriceLabel();
+
+        //reload UI-items
+        if(currentBasket != null) {
+            updateBasketList();
+            if(seatScrollPane.isVisible()) {
+                updateSeatGrid();
+            }
+        }
     }
 
     //build seat plan UI
@@ -254,8 +331,7 @@ public class ReservationController {
 
         //Switch view
         showSeatGrid();
-
-        resizeWindow();
+        UIUtils.resizeAndCenterWindow((Stage) defaultView.getScene().getWindow());
     }
 
     private HBox createLegend(Hall currentHall){
@@ -264,12 +340,12 @@ public class ReservationController {
         legend.getStyleClass().add("legend");
 
         legend.getChildren().addAll(
-                createLegendItem("Standard", "legend-standard"),
-                createLegendItem("Premium", "legend-premium"),
-                createLegendItem("Deluxe", "legend-deluxe")
+                createLegendItem(LanguageManager.getString("legend.standard"), "legend-standard"),
+                createLegendItem(LanguageManager.getString("legend.premium"), "legend-premium"),
+                createLegendItem(LanguageManager.getString("legend.deluxe"), "legend-deluxe")
         );
         if(currentHall.containsSeatStatus(Seat.SeatStatus.OUT_OF_ORDER)){
-            legend.getChildren().add(createLegendItem("Out of order", "legend-out_of_order"));
+            legend.getChildren().add(createLegendItem(LanguageManager.getString("legend.out_of_order"), "legend-out_of_order"));
         }
 
         return legend;
@@ -293,7 +369,7 @@ public class ReservationController {
         StackPane screenContainer = new StackPane();
         screenContainer.getStyleClass().add("screenContainer");
 
-        Label screen = new Label("LEINWAND");
+        Label screen = new Label(LanguageManager.getString("screen.label"));
         screen.getStyleClass().add("cinema-screen");
         screen.setAlignment(Pos.CENTER);
 
@@ -311,98 +387,20 @@ public class ReservationController {
         return screenContainer;
     }
 
-    private void createBasketList(){
-        basketSeatList.setCellFactory(ignored -> new ListCell<>() {
-            @Override
-            protected void updateItem(Seat seat, boolean empty) {
-                super.updateItem(seat, empty);
-
-                if (empty || seat == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    //item container
-                    HBox basketItemContainer = new HBox(15);
-                    basketItemContainer.setAlignment(Pos.CENTER_LEFT);
-                    basketItemContainer.getStyleClass().add("basketItemContainer");
-
-                    //seat identifier
-                    Label basketItem = new Label("Reihe " + currentBasket.getRowIdentifier() + " | Sitz " + seat.getSeatNumber());
-                    basketItem.getStyleClass().add("basketItem");
-
-                    //seat type
-                    Label typeLabel = new Label("Type: " + seat.getSeatType().name());
-                    typeLabel.getStyleClass().add("basketItem-type");
-
-                    //spacer
-                    Region spacer = new Region();
-                    HBox.setHgrow(spacer, Priority.ALWAYS);
-
-                    //price
-                    Label priceLabel = new Label(String.format("%.2f €", seat.getSeatType().getPrice()));
-                    priceLabel.getStyleClass().add("basketItem-price");
-
-                    // remove button
-                    Button removeBtn = new Button();
-                    removeBtn.getStyleClass().add("basketItem-remove");
-
-                    if (currentBasket.removalNotAllowed(seat)) {
-                        removeBtn.setDisable(true);
-                    }
-
-                    removeBtn.setOnAction(ignored -> {
-                        try {
-                            currentBasket.removeSeat(seat);
-
-                            refreshBasketList();
-                            updatePriceLabel();
-                        } catch (IllegalStateException e) {
-                            showErrorPopup("Kann nicht entfernt werden", e.getMessage());
-                        }
-                    });
-
-                    basketItemContainer.getChildren().addAll(basketItem, typeLabel, spacer, priceLabel, removeBtn);
-                    setGraphic(basketItemContainer);
-                    setText(null);
-
-                }
+    private void createBasketList() {
+        //moved the UI code in separate class
+        //cell factory only renders visible cells
+        basketSeatList.setCellFactory(_ -> new BasketItemCell(currentBasket, seat -> {
+            //handles remove button in cell
+            try {
+                currentBasket.removeSeat(seat);
+                updateBasketList();
+                updatePriceLabel();
+            } catch (IllegalStateException e) {
+                UIUtils.showErrorPopup(LanguageManager.getString("error.cannotRemove"), e.getMessage());
             }
-        });
-
-
+        }));
     }
-
-    private void setupDiscountMenu(){
-        discountComboBox.getItems().clear();
-        discountComboBox.getItems().addAll(
-                "Kein Rabatt",
-                "Student/Schüler (10%)",
-                "Senioren (15%)",
-                "Schwerbehindert (30%)"
-        );
-        discountComboBox.setValue("Kein Rabatt");
-
-        discountComboBox.setOnAction(ignored -> {
-            String selection = discountComboBox.getValue();
-
-            switch (selection) {
-                case "Kein Rabatt":
-                    currentBasket.setCurrentDiscount(Basket.Discounts.DEFAULT);
-                    break;
-                case "Student/Schüler (10%)":
-                    currentBasket.setCurrentDiscount(Basket.Discounts.STUDENT);
-                    break;
-                case "Senioren (15%)":
-                    currentBasket.setCurrentDiscount(Basket.Discounts.ELDERLY);
-                    break;
-                case "Schwerbehindert (30%)":
-                    currentBasket.setCurrentDiscount(Basket.Discounts.DISABLED);
-                    break;
-            }
-            updatePriceLabel();
-        });
-    }
-
 
     //Generating seats
     private Button createSeatButton(String rowIdentifier, Seat seat) {
@@ -455,12 +453,12 @@ public class ReservationController {
 
     //manually filling the comboBox to fix bug with default renderer
     private void fixComboBoxRenderer(){
-        hallComboBox.setButtonCell(new javafx.scene.control.ListCell<>() {
+        selectHallComboBox.setButtonCell(new javafx.scene.control.ListCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
-                    setText(hallComboBox.getPromptText());
+                    setText(selectHallComboBox.getPromptText());
                 } else {
                     setText(item);
                 }
@@ -468,22 +466,20 @@ public class ReservationController {
         });
     }
 
-    private void resizeWindow(){
-        Stage stage = (Stage) defaultView.getScene().getWindow();
-        stage.sizeToScene();
+    private void setupLanguageMenu(){
+        languageComboBox.getItems().clear();
+        languageComboBox.getItems().addAll("Deutsch", "English");
+        languageComboBox.setValue("Deutsch");
 
-        //check for screen size
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-
-        //limit stage size
-        if (stage.getHeight() > screenBounds.getHeight()) {
-            stage.setHeight(screenBounds.getHeight());
-        }
-        if (stage.getWidth() > screenBounds.getWidth()) {
-            stage.setWidth(screenBounds.getWidth());
-        }
-        //center window on screen
-        stage.centerOnScreen();
+        languageComboBox.setOnAction(ignored -> {
+            String selection = languageComboBox.getValue();
+            if(selection.equals("English")){
+                LanguageManager.setLanguage("en");
+            }else{
+                LanguageManager.setLanguage("de");
+            }
+            updateLanguage();
+        });
+        updateLanguage();
     }
-
 }

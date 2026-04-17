@@ -14,22 +14,32 @@
 
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.MenuButton?>
 <BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.srh_2551.cinema_reservations.controller.ReservationController">
  <top>
      <HBox alignment="CENTER_LEFT" spacing="15.0"
            style="-fx-padding: 10px; -fx-border-color: #cccccc; -fx-border-width: 0 0 1 0;"
            BorderPane.alignment="CENTER">
-         <ComboBox fx:id="hallComboBox" prefWidth="200.0" promptText="Saalauswahl"/>
+         <ComboBox fx:id="selectHallComboBox" prefWidth="200.0"/>
 
-         <Button fx:id="switchBasketBtn" mnemonicParsing="false" text="Warenkorb"/>
+         <Label fx:id="hallNameLabel" visible="false" managed="false">
+             <font>
+                 <Font name="System Bold" size="14.0"/>
+             </font>
+         </Label>
 
+         <Button fx:id="switchBasketBtn" mnemonicParsing="false"/>
+
+         <Region HBox.hgrow="ALWAYS" />
+
+         <ComboBox fx:id="languageComboBox" prefWidth="120.0"/>
      </HBox>
  </top>
  <center>
      <StackPane BorderPane.alignment="CENTER">
          <VBox fx:id="defaultView" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" visible="false"
                StackPane.alignment="CENTER">
-             <Label alignment="CENTER" text="Please select a cinema hall to beginn.">
+             <Label alignment="CENTER" fx:id="defaultMessageLabel">
                  <font>
                      <Font size="18.0"/>
                  </font>
@@ -46,7 +56,7 @@
          </ScrollPane>
          <BorderPane fx:id="basketView" prefHeight="200.0" prefWidth="200.0" visible="false">
              <top>
-                 <Label text="Warenkorb" BorderPane.alignment="CENTER">
+                 <Label fx:id="basketTitleLabel" BorderPane.alignment="CENTER">
                   <BorderPane.margin>
                       <Insets bottom="10.0" top="10.0"/>
                   </BorderPane.margin>
@@ -61,7 +71,7 @@
                          <Insets bottom="20.0" left="20.0" right="20.0" top="15.0"/>
                      </BorderPane.margin>
 
-                     <ComboBox fx:id="discountComboBox" promptText="Rabatt wählen" prefWidth="170.0"/>
+                     <MenuButton fx:id="discountMenuBtn" popupSide="TOP" prefWidth="170.0"/>
 
                      <Label fx:id="totalPriceLabel" text="Total Price: 0.00€">
                          <font>
@@ -73,9 +83,9 @@
 
                      <ButtonBar>
                          <buttons>
-                             <Button mnemonicParsing="false" onAction="#handleCancelBtnClick"
+                             <Button mnemonicParsing="false" onAction="#handleCancelBtnClick" fx:id="cancelBtn"
                                      text="Cancel"/>
-                             <Button mnemonicParsing="false" onAction="#handleConfirmOrderClick"
+                             <Button mnemonicParsing="false" onAction="#handleConfirmOrderClick" fx:id="confirmBtn"
                                      style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"
                                      text="Confirm Order"/>
                          </buttons>
