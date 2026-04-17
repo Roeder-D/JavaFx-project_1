@@ -14,7 +14,9 @@ import javafx.stage.Screen;
 import javafx.geometry.Rectangle2D;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ReservationController {
 
@@ -45,6 +47,7 @@ public class ReservationController {
     //Data
     // ===================
     private Basket currentBasket;
+    private final Map<Seat, Button> seatButtonMap = new HashMap<>();
 
     // ===================
     //Initialisation
@@ -73,7 +76,7 @@ public class ReservationController {
        hallComboBox.getItems().clear();
        hallComboBox.getItems().addAll(hallNames);
 
-       hallComboBox.setOnAction(event -> {
+       hallComboBox.setOnAction(ignored -> {
            String selectedHall = hallComboBox.getValue();
 
            if (selectedHall != null) {
@@ -156,7 +159,7 @@ public class ReservationController {
 
         switchBasketBtn.setVisible(true);
         switchBasketBtn.setText("Warenkorb");
-        switchBasketBtn.setOnAction(event -> showBasketView());
+        switchBasketBtn.setOnAction(ignored -> showBasketView());
     }
 
     private void showBasketView(){
@@ -166,10 +169,26 @@ public class ReservationController {
 
         switchBasketBtn.setVisible(true);
         switchBasketBtn.setText("Saal");
-        switchBasketBtn.setOnAction(event -> showSeatGrid());
+        switchBasketBtn.setOnAction(ignored -> refreshSeatGrid());
         refreshBasketList();
-
+        updatePriceLabel();
     }
+
+    private void refreshSeatGrid(){
+        if (seatButtonMap.isEmpty()) {
+            createSeatPlan(currentBasket.getSelectedHall());
+        } else {
+            //update style for seats
+            for (Map.Entry<Seat, Button> entry : seatButtonMap.entrySet()) {
+                Seat seat = entry.getKey();
+                Button seatBtn = entry.getValue();
+
+                applySeatStyle(seatBtn, seat);
+            }
+            showSeatGrid();
+        }
+    }
+
     private void refreshBasketList(){
         basketSeatList.getItems().clear();
         if(currentBasket != null){
@@ -197,6 +216,7 @@ public class ReservationController {
     //build seat plan UI
     private void createSeatPlan(Hall hall) {
         seatContainer.getChildren().clear();
+        seatButtonMap.clear();
 
         //Add Legend
         seatContainer.getChildren().add(createLegend(hall));
@@ -225,6 +245,7 @@ public class ReservationController {
 
             for(Seat seat : row.getSeats()){
                 Button seatBtn = createSeatButton(rowName, seat);
+                seatButtonMap.put(seat, seatBtn);
                 rowBox.getChildren().add(seatBtn);
             }
             rowCount ++;
@@ -291,7 +312,7 @@ public class ReservationController {
     }
 
     private void createBasketList(){
-        basketSeatList.setCellFactory(param -> new ListCell<>() {
+        basketSeatList.setCellFactory(ignored -> new ListCell<>() {
             @Override
             protected void updateItem(Seat seat, boolean empty) {
                 super.updateItem(seat, empty);
@@ -329,7 +350,7 @@ public class ReservationController {
                         removeBtn.setDisable(true);
                     }
 
-                    removeBtn.setOnAction(event -> {
+                    removeBtn.setOnAction(ignored -> {
                         try {
                             currentBasket.removeSeat(seat);
 
@@ -361,7 +382,7 @@ public class ReservationController {
         );
         discountComboBox.setValue("Kein Rabatt");
 
-        discountComboBox.setOnAction(event -> {
+        discountComboBox.setOnAction(ignored -> {
             String selection = discountComboBox.getValue();
 
             switch (selection) {
@@ -390,7 +411,7 @@ public class ReservationController {
 
         applySeatStyle(seatBtn, seat);
 
-        seatBtn.setOnAction(event -> handleSeatClick(seatBtn, seat));
+        seatBtn.setOnAction(ignored -> handleSeatClick(seatBtn, seat));
 
         return seatBtn;
     }
