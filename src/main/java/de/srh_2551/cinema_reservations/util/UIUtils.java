@@ -4,10 +4,17 @@ import javafx.scene.control.Alert;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 public class UIUtils {
-    public static void showErrorPopup(String title, String message) {
+    public static void showErrorPopup(Window owner, String title, String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
+
+        if(owner != null){
+            alert.initOwner(owner);
+        }
+
+
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);

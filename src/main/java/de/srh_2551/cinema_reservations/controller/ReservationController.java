@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -134,7 +135,8 @@ public class ReservationController {
 
             SeatUIBuilder.applySeatStyle(seatButtonMap.get(seat), seat);
         } catch (IllegalStateException e) {
-            UIUtils.showErrorPopup(LanguageManager.getString("error.invalidSelection"), e.getMessage());
+            Window parentWindow = defaultView.getScene().getWindow();
+            UIUtils.showErrorPopup(parentWindow, LanguageManager.getString("error.invalidSelection"), e.getMessage());
         }
     }
 
@@ -307,7 +309,8 @@ public class ReservationController {
                 updateBasketList();
                 updatePriceLabel();
             } catch (IllegalStateException e) {
-                UIUtils.showErrorPopup(LanguageManager.getString("error.cannotRemove"), e.getMessage());
+                Window parentWindow = defaultView.getScene().getWindow();
+                UIUtils.showErrorPopup(parentWindow, LanguageManager.getString("error.cannotRemove"), e.getMessage());
             }
         }));
     }
